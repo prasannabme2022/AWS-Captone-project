@@ -176,7 +176,7 @@ def create_patient(email, password, name, phone, address, dob, blood_group):
         
         patient_data = {
             'email': email,
-            'password': generate_password_hash(password.strip()),
+            'password': generate_password_hash(password.strip(), method='pbkdf2:sha256'),
             'name': name,
             'phone': phone or '',
             'address': address or '',
@@ -261,7 +261,7 @@ def create_doctor(email, password, name, phone, specialization, license_number):
         
         doctor_data = {
             'email': email,
-            'password': generate_password_hash(password.strip()),
+            'password': generate_password_hash(password.strip(), method='pbkdf2:sha256'),
             'name': name,
             'phone': phone or '',
             'specialization': specialization or '',
