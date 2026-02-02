@@ -888,7 +888,7 @@ def doctor_dashboard():
         return redirect(url_for('login'))
     
     appointments = get_doctor_appointments(session['user_id'])
-    return render_template('doctor_dashboard.html', appointments=appointments)
+    return render_template('doctor/dashboard.html', appointments=appointments)
 
 @app.route('/book_appointment', methods=['GET', 'POST'])
 def book_appointment():
