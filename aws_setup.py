@@ -974,7 +974,7 @@ def ai_chat():
             'response': response
         })
     
-    return render_template('ai_chat.html')
+    return render_template('patient/assistant.html')
 
 @app.route('/patient_vault')
 def patient_vault():
@@ -983,7 +983,7 @@ def patient_vault():
         return redirect(url_for('login'))
     
     vault_items = get_patient_vault(session['user_id'])
-    return render_template('patient_vault.html', vault_items=vault_items)
+    return render_template('patient/vault.html', vault_items=vault_items)
 
 @app.route('/upload_medical_file', methods=['POST'])
 def upload_medical_file():
@@ -1029,7 +1029,7 @@ def invoices():
         return redirect(url_for('login'))
     
     patient_invoices = get_patient_invoices(session['user_id'])
-    return render_template('invoices.html', invoices=patient_invoices)
+    return render_template('patient/invoices.html', invoices=patient_invoices)
 
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
