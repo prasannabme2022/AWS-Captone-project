@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 import os
-# import database # Old In-Memory DB
-import database_dynamo as database # New AWS DynamoDB Adapter
+import database # In-Memory DB (for local testing)
+# import database_dynamo as database # AWS DynamoDB Adapter (use when AWS is configured)
 from functools import wraps
 import ml_engine
 from sns_service import sns_client # Import AWS SNS Service
