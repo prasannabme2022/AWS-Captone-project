@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
+        <div>
+            <h2 class="text-gradient" style="margin: 0;">Blood Storage Unit 01</h2>
+            <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">Real-time Inventory Tracking System</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">
+                <i class="fas fa-arrow-left"></i> Monitoring Deck
+            </a>
+            <div
+                style="background: #fee2e2; color: #991b1b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; align-self: center;">
+                <i class="fas fa-temperature-low"></i> 4°C Stable
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem;">
+        {% for group, data in stock.items() %}
+        <div style="
+            background: {{ '#fff' if data.status == 'Available' else '#fff1f2' }}; 
+            border: 1px solid {{ '#e5e7eb' if data.status == 'Available' else '#fecaca' }}; 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        ">
+            <!-- Status Pill -->
+            <div style="
+                position: absolute; top: 1rem; right: 1rem; 
+                font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+                padding: 0.25rem 0.75rem; border-radius: 999px;
+                background: {{ '#dcfce7' if data.status == 'Available' else '#fee2e2' }};
+                color: {{ '#166534' if data.status == 'Available' else '#991b1b' }};
+            ">
+                {{ data.status }}
+            </div>
+
+            <!-- Icon -->
+            <div style="
+                width: 60px; height: 60px; border-radius: 50%; 
+                background: {{ '#fee2e2' if data.status != 'Available' else '#f3f4f6' }};
+                color: #ef4444; display: flex; align-items: center; justify-content: center;
+                font-size: 1.5rem; margin-bottom: 1rem;
+            ">
+                <i class="fas fa-tint"></i>
+            </div>
+
+            <div style="font-size: 2.5rem; font-weight: 800; color: #111827; line-height: 1;">
+                {{ data.group }}
+            </div>
+            <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem;">Blood Group</div>
+
+            <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1.5rem;">
+                <span
+                    style="font-size: 2rem; font-weight: 700; color: {{ '#dc2626' if data.status != 'Available' else '#1f2937' }};">
+                    {{ data.units }}
+                </span>
+                <span style="color: #6b7280;">units</span>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('update_blood_stock', group=group, action='remove') }}" class="btn"
+                    style="flex: 1; justify-content: center; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;">
+                    <i class="fas fa-minus"></i>
+                </a>
+                <a href="{{ url_for('update_blood_stock', group=group, action='add') }}" class="btn"
+                    style="flex: 1; justify-content: center; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

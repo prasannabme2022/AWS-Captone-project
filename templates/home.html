@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <!-- Hero Section -->
+    <div style="max-width: 800px; margin: 0 auto; margin-bottom: 4rem;">
+        <h1 class="text-gradient" style="font-size: 3.5rem; margin-bottom: 1.5rem; line-height: 1.2;">
+            Advanced Healthcare <br> Ecosystem
+        </h1>
+        <p style="font-size: 1.25rem; color: #6b7280; margin-bottom: 2.5rem; line-height: 1.6;">
+            Medtrack connects patients, doctors, and institutions in a seamless, real-time medical journey.
+            Experience the future of hospital management.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('login') }}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                Get Started <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+            </a>
+            <a href="{{ url_for('about') }}" class="btn"
+                style="padding: 1rem 2rem; font-size: 1.1rem; background: white; color: #374151; border: 1px solid #e5e7eb;">
+                Learn More
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="features-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+
+        <!-- Feature 1 -->
+        <div class="glass-panel" style="text-align: left; padding: 2rem;">
+            <div class="feature-icon"
+                style="width: 50px; height: 50px; background: #e0f2fe; color: #0284c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">AI Clinical Support</h3>
+            <p style="color: #6b7280;">Advanced machine learning algorithms to assist in early diagnosis and treatment
+                planning.</p>
+            <a href="{{ url_for('login') }}" class="btn"
+                style="margin-top: 1rem; width: 100%; text-align: center;">Access Tools</a>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-panel" style="text-align: left; padding: 2rem;">
+            <div class="feature-icon"
+                style="width: 50px; height: 50px; background: #fef2f2; color: #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
+                <i class="fas fa-tint"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Blood Bank Network</h3>
+            <p style="color: #6b7280;">Real-time blood availability tracking across our interconnected hospital network.
+            </p>
+            <a href="{{ url_for('blood_bank_view') }}" class="btn"
+                style="margin-top: 1rem; width: 100%; text-align: center;">Check Availability</a>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-panel" style="text-align: left; padding: 2rem;">
+            <div class="feature-icon"
+                style="width: 50px; height: 50px; background: #f0fdf4; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Secure Comm Center</h3>
+            <p style="color: #6b7280;">Direct, department-filtered communication channels between patients and
+                specialists.</p>
+            <a href="{{ url_for('login') }}" class="btn"
+                style="margin-top: 1rem; width: 100%; text-align: center;">Start Chat</a>
+        </div>
+    </div>
+    {% endblock %}

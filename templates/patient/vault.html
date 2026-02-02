@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-gradient">Medical Vault</h1>
+<p style="color: #6b7280; margin-bottom: 2rem;">Your secure repository for medical records and AI insights.</p>
+
+<!-- Upload Section -->
+<div class="glass-panel" style="padding: 2rem; margin-bottom: 3rem;">
+    <h3 style="margin-top: 0;">Upload New Report</h3>
+    <p style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem;">Upload a PDF or Image simulated report to
+        receive an instant AI analysis.</p>
+
+    <form method="POST" enctype="multipart/form-data" style="display: flex; gap: 1rem; align-items: flex-end;">
+        <div style="flex: 1;">
+            <label class="form-label" style="margin-bottom: 0.5rem;">Select File</label>
+            <div style="position: relative;">
+                <input type="file" name="file" id="file-upload" class="form-input"
+                    style="opacity: 0; position: absolute; z-index: -1;">
+                <label for="file-upload" class="form-input"
+                    style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: white;">
+                    <span class="file-label-text" style="color: #6b7280;">Choose file...</span>
+                    <i class="fas fa-cloud-upload-alt" style="color: var(--secondary);"></i>
+                </label>
+            </div>
+        </div>
+        <div style="width: 200px;">
+            <label class="form-label" style="margin-bottom: 0.5rem;">Category</label>
+            <select name="category" class="form-input">
+                <option value="Report">Report</option>
+                <option value="Prescription">Prescription</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+</div>
+
+<!-- Toolbar -->
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 250px;">
+        <input type="text" id="searchInput" placeholder="Search files..." class="form-input" onkeyup="filterRecords()">
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <select id="categoryFilter" class="form-input" onchange="filterRecords()">
+            <option value="all">All Files</option>
+            <option value="Prescription">Prescriptions</option>
+            <option value="Report">Reports</option>
+            <option value="Other">Other</option>
+        </select>
+        <select id="sortOrder" class="form-input" onchange="sortRecords()">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+        </select>
+    </div>
+</div>
+
+<!-- Records Grid -->
+<h3 style="margin-bottom: 1rem;">Recent Records</h3>
+{% if not records %}
+<p style="color: #9ca3af; font-style: italic;">No records found. Upload a report to get started.</p>
+{% else %}
+<div class="vault-grid" id="recordsGrid">
+    {% for rec in records %}
+    <div class="glass-card record-item" data-name="{{ rec.filename }}" data-category="{{ rec.category }}"
+        data-date="{{ rec.date }}">
+        <div class="report-icon" style="position: relative;">
+            <i class="far {{ 'fa-file-prescription' if rec.category == 'Prescription' else 'fa-file-alt' }}"></i>
+            <span
+                style="position: absolute; top: -5px; right: -5px; background: var(--secondary); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;">{{
+                rec.category }}</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            title="{{ rec.filename }}">{{ rec.filename }}</h4>
+        <small style="color: #9ca3af; display: block; margin-bottom: 1rem;">{{ rec.date }}</small>
+
+        <div
+            style="background: rgba(255,255,255,0.6); border-radius: 8px; padding: 1rem; font-size: 0.9rem; line-height: 1.5; color: #374151;">
+            <strong><i class="fas fa-robot" style="color: var(--secondary);"></i> AI Insight:</strong><br>
+            {{ rec.ai_summary }}
+        </div>
+
+        <div style="margin-top: 1rem; text-align: right;">
+            <a href="{{ url_for('uploaded_file', filename=rec.filename) }}" target="_blank" class="btn"
+                style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #e0f2fe; color: #0369a1;">
+                <i class="fas fa-eye"></i> View File
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    function filterRecords() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const category = document.getElementById('categoryFilter').value;
+        const cards = document.querySelectorAll('.record-item');
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            const cat = card.getAttribute('data-category');
+
+            let matchesSearch = name.includes(search);
+            let matchesCat = category === 'all' || cat === category;
+
+            card.style.display = (matchesSearch && matchesCat) ? 'block' : 'none';
+        });
+    }
+
+    function sortRecords() {
+        const order = document.getElementById('sortOrder').value;
+        const grid = document.getElementById('recordsGrid');
+        const cards = Array.from(document.querySelectorAll('.record-item'));
+
+        cards.sort((a, b) => {
+            const dateA = a.getAttribute('data-date');
+            const dateB = b.getAttribute('data-date');
+            const nameA = a.getAttribute('data-name').toLowerCase();
+            const nameB = b.getAttribute('data-name').toLowerCase();
+
+            if (order === 'newest') return dateB.localeCompare(dateA);
+            if (order === 'oldest') return dateA.localeCompare(dateB);
+            if (order === 'az') return nameA.localeCompare(nameB);
+            if (order === 'za') return nameB.localeCompare(nameA);
+        });
+
+        cards.forEach(card => grid.appendChild(card));
+    }
+</script>
+{% endblock %}

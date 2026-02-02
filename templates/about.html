@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 900px; margin: 2rem auto; padding: 3rem;">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 class="text-gradient">About Medtrack</h2>
+        <p style="color: #6b7280; font-size: 1.1rem;">Revolutionizing Hospital Management through Technology.</p>
+    </div>
+
+    <div style="margin-bottom: 4rem;">
+        <h3 style="color: #1f2937; margin-bottom: 1rem;">Our Mission</h3>
+        <p style="color: #4b5563; line-height: 1.8; margin-bottom: 1rem;">
+            In today’s fast-evolving healthcare landscape, efficient communication and coordination between doctors and
+            patients are crucial. MedTrack is a cloud-based healthcare management system that streamlines patient doctor
+            interactions by providing a centralized platform for booking appointments, managing medical histories, and
+            enabling diagnosis submissions.
+        </p>
+        <p style="color: #4b5563; line-height: 1.8; margin-bottom: 1rem;">
+            To address these challenges, the project utilizes Flask for backend development, AWS EC2 for hosting, and
+            DynamoDB for managing data. MedTrack allows patients to register, log in, book appointments, and submit
+            diagnosis reports online. The system ensures real-time notifications, enhancing communication between
+            doctors and patients regarding appointments and medical submissions.
+        </p>
+        <p style="color: #4b5563; line-height: 1.8;">
+            Additionally, AWS Identity and Access Management (IAM) is employed to ensure secure access control to AWS
+            resources, allowing only authorized users to access sensitive data. This cloud-based solution improves
+            accessibility and efficiency in healthcare services for all users.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+        <div>
+            <h3 style="color: #1f2937; margin-bottom: 1.5rem;">The Team</h3>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 48px; height: 48px; background: #e5e7eb; border-radius: 50%;"></div>
+                <div>
+                    <div style="font-weight: 600;">Dr. Sarah Chen</div>
+                    <div style="font-size: 0.8rem; color: #6b7280;">Chief Medical Officer</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 48px; height: 48px; background: #e5e7eb; border-radius: 50%;"></div>
+                <div>
+                    <div style="font-weight: 600;">Alex Rivera</div>
+                    <div style="font-size: 0.8rem; color: #6b7280;">Lead Architect</div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="color: #1f2937; margin-bottom: 1.5rem;">Technology Stack</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <span
+                    style="padding: 0.5rem 1rem; background: #eff6ff; color: #1d4ed8; border-radius: 99px; font-size: 0.8rem;">Python
+                    Flask</span>
+                <span
+                    style="padding: 0.5rem 1rem; background: #eff6ff; color: #1d4ed8; border-radius: 99px; font-size: 0.8rem;">AWS
+                    EC2</span>
+                <span
+                    style="padding: 0.5rem 1rem; background: #eff6ff; color: #1d4ed8; border-radius: 99px; font-size: 0.8rem;">DynamoDB</span>
+                <span
+                    style="padding: 0.5rem 1rem; background: #eff6ff; color: #1d4ed8; border-radius: 99px; font-size: 0.8rem;">AWS
+                    IAM</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

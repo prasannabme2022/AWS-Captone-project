@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <h2 class="text-gradient" style="text-align: center; margin-bottom: 2rem;">Book Appointment</h2>
+
+    <form method="POST">
+        <!-- Location Section -->
+        <h4
+            style="color: var(--secondary); margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+            1. Select Location</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label">Select State <span style="color: red;">*</span></label>
+                <select name="state" id="stateDropdown" class="form-input" required onchange="updateCenters()">
+                    <option value="">Select State</option>
+                    {% for state in locations.keys() %}
+                    <option value="{{ state }}">{{ state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Select Center <span style="color: red;">*</span></label>
+                <select name="center" id="centerDropdown" class="form-input" required>
+                    <option value="">Select Center</option>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Appointment Details -->
+        <h4
+            style="color: var(--secondary); margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+            2. Appointment Details</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Reason for Visit <span style="color: red;">*</span></label>
+                <textarea name="reason" class="form-input" rows="2"
+                    placeholder="Briefly describe your symptoms or reason for visit..." required></textarea>
+            </div>
+
+            <!-- Patient Demographics -->
+            <div class="form-group">
+                <label class="form-label">Patient Age <span style="color: red;">*</span></label>
+                <input type="number" name="age" class="form-input" min="0" max="120" placeholder="e.g. 35" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender <span style="color: red;">*</span></label>
+                <select name="gender" class="form-input" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <!-- Department Selection -->
+            <div class="form-group">
+                <label class="form-label">Select Department <span style="color: red;">*</span></label>
+                <select id="deptDropdown" class="form-input" required onchange="filterDoctors()">
+                    <option value="">Select Department</option>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Select Doctor <span style="color: red;">*</span></label>
+                <select name="doctor_id" id="doctorDropdown" class="form-input" required>
+                    <option value="">Select Doctor (Choose Dept First)</option>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Preferred Time <span style="color: red;">*</span></label>
+                <input type="datetime-local" name="time" class="form-input" required>
+            </div>
+        </div>
+
+        <!-- Payment Mode (Mock) -->
+        <h4
+            style="color: var(--secondary); margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+            3. Payment</h4>
+        <div class="form-group" style="margin-bottom: 2rem;">
+            <label class="form-label">Consultation Fee</label>
+            <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; color: #374151;">
+                ₹500.00 (Standard Fee)
+            </div>
+            <div style="margin-top: 1rem;">
+                <label style="margin-right: 1.5rem;">
+                    <input type="radio" name="payment_mode" value="hospital" checked> Pay at Hospital
+                </label>
+                <label>
+                    <input type="radio" name="payment_mode" value="online"> Pay Online (UPI/Card)
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Booking</button>
+    </form>
+</div>
+
+<script>
+    const locationsData = {{ locations | tojson }};
+    const doctorsData = {{ doctors | tojson }}; // Pass all doctors to JS
+
+    // Extract unique departments
+    const departments = [...new Set(doctorsData.map(d => d.department))];
+    const deptDropdown = document.getElementById('deptDropdown');
+
+    // Populate Department Dropdown
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        deptDropdown.appendChild(option);
+    });
+
+    function updateCenters() {
+        const stateSelect = document.getElementById('stateDropdown');
+        const centerSelect = document.getElementById('centerDropdown');
+        const selectedState = stateSelect.value;
+
+        // Clear existing centers
+        centerSelect.innerHTML = '<option value="">Select Center</option>';
+
+        if (selectedState && locationsData[selectedState]) {
+            const cities = locationsData[selectedState];
+            for (const city in cities) {
+                const centers = cities[city];
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = city;
+
+                centers.forEach(center => {
+                    const option = document.createElement('option');
+                    option.value = center;
+                    option.textContent = center;
+                    optGroup.appendChild(option);
+                });
+                centerSelect.appendChild(optGroup);
+            }
+        }
+    }
+
+    function filterDoctors() {
+        const selectedDept = document.getElementById('deptDropdown').value;
+        const doctorSelect = document.getElementById('doctorDropdown');
+
+        doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+
+        if (selectedDept) {
+            const filteredDoctors = doctorsData.filter(d => d.department === selectedDept);
+
+            filteredDoctors.forEach(doc => {
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = `${doc.name} (${doc.availability})`;
+                doctorSelect.appendChild(option);
+            });
+        }
+    }
+</script>
+{% endblock %}

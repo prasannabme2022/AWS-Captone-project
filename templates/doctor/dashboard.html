@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-gradient">Doctor's Dashboard</h1>
+<p style="color: #6b7280; margin-bottom: 2rem;">Manage your patient queue and consultations.</p>
+
+<!-- Alerts Section -->
+{% if alerts %}
+<div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 1rem; margin-bottom: 2rem;">
+    <h3 style="color: #991b1b; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-exclamation-triangle"></i> Hospital Alerts
+    </h3>
+    <ul style="color: #7f1d1d; margin-bottom: 0;">
+        {% for alert in alerts %}
+        <li><strong>Low Blood Stock ({{ alert.group }}):</strong> Only {{ alert.units }} units remaining.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- AI Tools Section -->
+<div class="glass-panel"
+    style="padding: 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+    <div>
+        <h3 style="margin: 0; color: #0369a1;"><i class="fas fa-brain"></i> Multimodal Diagnostics</h3>
+        <p style="margin: 0.5rem 0 0; color: #546e7a;">Upload X-Rays, ESG Signals, or Genomic Sequneces for advanced AI
+            analysis.</p>
+    </div>
+    <a href="{{ url_for('multimodal_predict') }}" class="btn btn-primary"
+        style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        Launch AI System <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+    </a>
+</div>
+
+<!-- Analytics Section -->
+<div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="margin-top: 0; margin-bottom: 1rem;">Weekly Patient Visits</h3>
+    <div style="height: 300px;">
+        <canvas id="weeklyChart"></canvas>
+    </div>
+</div>
+
+<!-- Patient Queue -->
+<div class="glass-panel" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.5rem; border-bottom: 1px solid #f3f4f6;">
+        <h3 style="margin: 0;">Patient Queue</h3>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead style="background: rgba(0, 114, 255, 0.05); border-bottom: 1px solid #e5e7eb;">
+            <tr>
+                <th style="padding: 1rem;">Time</th>
+                <th style="padding: 1rem;">Patient</th>
+                <th style="padding: 1rem;">Status</th>
+                <th style="padding: 1rem;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if not appointments %}
+            <tr>
+                <td colspan="4" style="padding: 2rem; text-align: center; color: #9ca3af;">No appointments scheduled for
+                    today.</td>
+            </tr>
+            {% else %}
+            {% for appt in appointments %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem;">{{ appt.time }}</td>
+                <td style="padding: 1rem;">
+                    <div style="font-weight: 500;">{{ appt.patient_id }}</div>
+                    {% if appt.age and appt.gender %}
+                    <div style="font-size: 0.8rem; color: #6b7280;">{{ appt.age }} yrs, {{ appt.gender }}</div>
+                    {% endif %}
+                    {% if appt.reason %}
+                    <div style="font-size: 0.8rem; color: #0369a1; margin-top: 0.2rem; font-style: italic;">"{{
+                        appt.reason }}"</div>
+                    {% endif %}
+                </td>
+                <td style="padding: 1rem;">
+                    <span
+                        class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
+                        {{ appt.status }}
+                    </span>
+                </td>
+                <td style="padding: 1rem; display: flex; gap: 0.5rem; align-items: center;">
+                    {% if appt.status != 'COMPLETED' %}
+                    <a href="{{ url_for('advance_status', appt_id=appt.id) }}" class="btn btn-primary"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        Advance
+                    </a>
+                    <a href="{{ url_for('doctor_view_vault', patient_id=appt.patient_id) }}" class="btn"
+                        style="padding: 0.5rem; background: #e0f2fe; color: #0369a1;" title="View Vault">
+                        <i class="fas fa-folder-open"></i>
+                    </a>
+                    <button onclick="getAIAssist('{{ appt.patient_id }}')" class="btn"
+                        style="padding: 0.5rem; background: #f3e8ff; color: #7e22ce;" title="AI Assist">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    {% else %}
+                    <a href="{{ url_for('review_appointment', appt_id=appt.id) }}" class="btn"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #f3f4f6; color: #374151;">
+                        <i class="fas fa-clipboard-check"></i> Review
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    async function getAIAssist(patientId) {
+        try {
+            alert("Analyzing patient data with AI...");
+            const response = await fetch(`/doctor/ai_assist/${patientId}`);
+            const data = await response.json();
+            alert(data.summary);
+        } catch (e) {
+            alert("AI Service Unavailable");
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const stats = {{ weekly_stats | tojson
+    }};
+
+    const labels = stats.map(item => item.day);
+    const data = stats.map(item => item.count);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Patients',
+                data: data,
+                backgroundColor: 'rgba(0, 114, 255, 0.5)',
+                borderColor: 'rgba(0, 114, 255, 1)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    });
+</script>
+{% endblock %}

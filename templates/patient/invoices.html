@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-gradient">Financials & Insurance</h1>
+<p style="color: #6b7280; margin-bottom: 2rem;">Manage your medical bills and insurance claims.</p>
+
+<div class="glass-panel" style="padding: 0; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead style="background: rgba(0, 114, 255, 0.05); border-bottom: 1px solid #e5e7eb;">
+            <tr>
+                <th style="padding: 1rem;">Date</th>
+                <th style="padding: 1rem;">Description</th>
+                <th style="padding: 1rem;">Amount</th>
+                <th style="padding: 1rem;">Status</th>
+                <th style="padding: 1rem;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if not invoices %}
+            <tr>
+                <td colspan="5" style="padding: 2rem; text-align: center; color: #9ca3af;">No invoices found.</td>
+            </tr>
+            {% else %}
+            {% for inv in invoices %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem;">{{ inv.date }}</td>
+                <td style="padding: 1rem; font-weight: 500;">{{ inv.details }}</td>
+                <td style="padding: 1rem;">${{ inv.amount }}</td>
+                <td style="padding: 1rem;">
+                    <span class="status-badge" style="background: {{ '#d1fae5' if inv.status == 'Claimed' else '#fee2e2' }}; 
+                                     color: {{ '#065f46' if inv.status == 'Claimed' else '#991b1b' }}">
+                        {{ inv.status }}
+                    </span>
+                </td>
+                <td style="padding: 1rem;">
+                    {% if inv.status == 'Unpaid' %}
+                    <a href="{{ url_for('claim_insurance', inv_id=inv.id) }}" class="btn"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--secondary); color: white;">
+                        Claim Insurance
+                    </a>
+                    {% else %}
+                    <span style="color: #9ca3af; font-size: 0.9rem;"><i class="fas fa-check"></i> Processed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div
+    style="margin-top: 2rem; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px; display: flex; align-items: start; gap: 1rem;">
+    <i class="fas fa-shield-alt" style="font-size: 2rem; color: #16a34a;"></i>
+    <div>
+        <h4 style="margin: 0 0 0.5rem 0; color: #166534;">Insurance Coverage Active</h4>
+        <p style="margin: 0; color: #15803d; font-size: 0.9rem;">Your account is linked to <strong>Global Health
+                Insurance</strong>. You can claim instantly for consultation fees.</p>
+    </div>
+</div>
+{% endblock %}

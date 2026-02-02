@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <h2 class="text-gradient" style="margin-bottom: 0.5rem;">AI Health Companion</h2>
+    <p style="color: #6b7280; margin-bottom: 2rem;">Your personal medical assistant and document analyst.</p>
+
+    <!-- Tabs -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb;">
+        <button onclick="switchTab('chat')" id="tab-chat" class="tab-btn active"
+            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary); cursor: pointer;">
+            <i class="fas fa-comments"></i> Health Chat
+        </button>
+        <button onclick="switchTab('analyze')" id="tab-analyze" class="tab-btn"
+            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer;">
+            <i class="fas fa-file-medical-alt"></i> Report Analysis
+        </button>
+        <button onclick="switchTab('wellness')" id="tab-wellness" class="tab-btn"
+            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer;">
+            <i class="fas fa-smile"></i> Mental Wellness
+        </button>
+    </div>
+
+    <!-- Chat Tab -->
+    <div id="view-chat" class="glass-panel"
+        style="display: block; height: 600px; display: flex; flex-direction: column; padding: 0;">
+        <div id="chat-history"
+            style="flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Welcome Message -->
+            <div style="display: flex; gap: 1rem;">
+                <div
+                    style="width: 36px; height: 36px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 12px; max-width: 70%; line-height: 1.6;">
+                    Hello! I'm your Medtrack AI Assistant. I can help interpret symptoms or guide you through the app.
+                    How are you feeling today?
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 1.5rem; border-top: 1px solid #f3f4f6; background: white;">
+            <form onsubmit="sendAiMessage(event)" style="display: flex; gap: 1rem;">
+                <input type="text" id="ai-input" class="form-input" placeholder="Type your symptoms or question..."
+                    required>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Analysis Tab -->
+    <div id="view-analyze" style="display: none;">
+        <div class="glass-panel" style="padding: 2rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <i class="fas fa-microscope" style="font-size: 3rem; color: var(--secondary); margin-bottom: 1rem;"></i>
+                <h3>Upload Medical Report</h3>
+                <p style="color: #6b7280;">Upload X-Rays, Lab Reports, or Prescriptions for instant AI analysis.</p>
+            </div>
+
+            <form action="{{ url_for('analyze_report') }}" method="POST" enctype="multipart/form-data"
+                style="max-width: 500px; margin: 0 auto; border: 2px dashed #e5e7eb; padding: 2rem; border-radius: 12px; text-align: center;">
+
+                <input type="file" name="file" id="file-upload" class="form-input" accept=".jpg,.jpeg,.png,.pdf"
+                    required style="margin-bottom: 1.5rem;">
+
+                <div class="form-group">
+                    <label class="form-label" style="text-align: left;">Additional Context (Symptoms)</label>
+                    <textarea name="symptoms" class="form-input" rows="3"
+                        placeholder="e.g. Having fever since yesterday..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-magic"></i> Analyze Document
+                </button>
+            </form>
+
+            {% if analysis_result %}
+            <div style="margin-top: 3rem; animation: fadeIn 0.5s;">
+                <h3 style="margin-bottom: 1rem;">Analysis Results</h3>
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="font-weight: bold; color: #15803d;">Prediction: {{ analysis_result.prediction
+                            }}</span>
+                        <span
+                            style="background: white; padding: 0.2rem 0.8rem; border-radius: 99px; font-size: 0.9rem; color: #166534; border: 1px solid #bbf7d0;">
+                            Confidence: {{ analysis_result.confidence }}
+                        </span>
+                    </div>
+                    <p style="color: #14532d; line-height: 1.6;">{{ analysis_result.summary }}</p>
+
+                    <div
+                        style="margin-top: 1rem; border-top: 1px solid #bbf7d0; padding-top: 1rem; font-size: 0.9rem; color: #166534;">
+                        <strong>Key Findings:</strong><br>
+                        • {{ analysis_result.modality_analysis.text_features }}<br>
+                        • {{ analysis_result.modality_analysis.image_features }}
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 1rem; text-align: center;">
+                    * AI analysis is for reference only. Please consult a doctor for official diagnosis.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Wellness Tab -->
+<div id="view-wellness" style="display: none;">
+    <div class="glass-panel" style="padding: 2rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <!-- Mood Logger -->
+            <div>
+                <h3 style="margin-top: 0;">How are you feeling today?</h3>
+                <p style="color: #6b7280; margin-bottom: 1.5rem;">Track your daily mood to visualize your well-being
+                    journey.</p>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <button onclick="logMood(1)" class="mood-btn"
+                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
+                        title="Awful">😫</button>
+                    <button onclick="logMood(2)" class="mood-btn"
+                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
+                        title="Bad">😔</button>
+                    <button onclick="logMood(3)" class="mood-btn"
+                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
+                        title="Okay">😐</button>
+                    <button onclick="logMood(4)" class="mood-btn"
+                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
+                        title="Good">🙂</button>
+                    <button onclick="logMood(5)" class="mood-btn"
+                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
+                        title="Great">😄</button>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="mood-note" class="form-input" placeholder="Add a note (optional)...">
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div>
+                <h3 style="margin-top: 0;">Mood Trends (Last 7 Days)</h3>
+                <div style="height: 250px;">
+                    <canvas id="moodChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let moodChartInstance = null;
+
+    async function loadMoodHistory() {
+        const response = await fetch('/api/mood/history');
+        const data = await response.json();
+
+        const labels = data.history.map(h => h.date);
+        const scores = data.history.map(h => h.score);
+
+        const ctx = document.getElementById('moodChart').getContext('2d');
+
+        if (moodChartInstance) {
+            moodChartInstance.destroy();
+        }
+
+        moodChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Mood Score',
+                    data: scores,
+                    borderColor: '#0072ff',
+                    backgroundColor: 'rgba(0, 114, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    }
+
+    async function logMood(score) {
+        const note = document.getElementById('mood-note').value;
+        await fetch('/api/mood/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ score, note })
+        });
+        alert('Mood logged successfully!');
+        document.getElementById('mood-note').value = '';
+        loadMoodHistory();
+    }
+
+    function switchTab(tab) {
+        // Update Buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.style.color = '#6b7280';
+            btn.style.borderBottomColor = 'transparent';
+        });
+        const activeBtn = document.getElementById(`tab-${tab}`);
+        activeBtn.style.color = 'var(--primary)';
+        activeBtn.style.borderBottomColor = 'var(--primary)';
+
+        // Update Views
+        document.getElementById('view-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+        document.getElementById('view-analyze').style.display = tab === 'analyze' ? 'block' : 'none';
+        document.getElementById('view-wellness').style.display = tab === 'wellness' ? 'block' : 'none';
+
+        if (tab === 'wellness') {
+            loadMoodHistory();
+        }
+    }
+
+    async function sendAiMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('ai-input');
+        const text = input.value;
+        if (!text) return;
+
+        // Add User Message
+        const history = document.getElementById('chat-history');
+        history.innerHTML += `
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <div style="background: var(--primary); color: white; padding: 1rem; border-radius: 12px; max-width: 70%; line-height: 1.6;">
+                    ${text}
+                </div>
+            </div>
+        `;
+        input.value = '';
+        history.scrollTop = history.scrollHeight;
+
+        // Simulate Typing
+        const loadingId = 'loading-' + Date.now();
+        history.innerHTML += `
+            <div id="${loadingId}" style="display: flex; gap: 1rem;">
+                <div style="width: 36px; height: 36px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 12px; color: #6b7280;">
+                    <i class="fas fa-ellipsis-h fa-beat"></i>
+                </div>
+            </div>
+        `;
+        history.scrollTop = history.scrollHeight;
+
+        // Fetch AI Response
+        try {
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+
+            // Remove loading
+            document.getElementById(loadingId).remove();
+
+            // Add AI Message
+            history.innerHTML += `
+                <div style="display: flex; gap: 1rem;">
+                    <div style="width: 36px; height: 36px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 1rem; border-radius: 12px; max-width: 70%; line-height: 1.6;">
+                        ${data.reply}
+                    </div>
+                </div>
+            `;
+            history.scrollTop = history.scrollHeight;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Check if we just did an analysis to switch tab
+    {% if analysis_result %}
+    switchTab('analyze');
+    {% endif %}
+</script>
+{% endblock %}

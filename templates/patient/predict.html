@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <h1 class="text-gradient">AI Multimodal Diagnosis</h1>
+    <p style="color: #6b7280; margin-bottom: 2rem;">Combine your symptom description (Text) with medical imaging (Image)
+        for a comprehensive analysis.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Input Form -->
+        <div>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Describe your symptoms</label>
+                    <textarea name="symptoms" class="form-input" rows="5"
+                        placeholder="e.g. I have a severe headache on the left side and feel nauseous..."
+                        required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Scan/Report (Optional)</label>
+                    <input type="file" name="file" class="form-input">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Run Analysis</button>
+            </form>
+        </div>
+
+        <!-- Result Display -->
+        <div>
+            {% if result %}
+            <div class="glass-card" style="background: white; border: 2px solid var(--secondary);">
+                <h3 style="color: var(--secondary); margin-top: 0;">Analysis Result</h3>
+
+                <div style="margin-bottom: 1rem;">
+                    <small>Predicted Condition</small>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #111827;">{{ result.prediction }}</div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <small>Confidence Score</small>
+                    <div style="font-size: 1.25rem; font-weight: bold; color: var(--accent);">{{ result.confidence }}
+                    </div>
+                </div>
+
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                    <strong>AI Summary:</strong><br>
+                    {{ result.summary }}
+                </div>
+            </div>
+            {% else %}
+            <div
+                style="height: 100%; display: flex; align-items: center; justify-content: center; border: 2px dashed #d1d5db; border-radius: 12px; color: #9ca3af; text-align: center; padding: 2rem;">
+                <div>
+                    <i class="fas fa-microchip" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <p>Enter data and run analysis to see results here.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

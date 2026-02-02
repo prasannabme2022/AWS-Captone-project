@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-gradient">My Journey</h1>
+<p style="color: #6b7280;">Track your upcoming appointments and status.</p>
+
+{% if not appointments %}
+<div class="glass-card" style="margin-top: 2rem; text-align: center;">
+    <h3>No appointments found.</h3>
+    <p>Book your first consultation to start your journey.</p>
+    <a href="{{ url_for('book_appointment') }}" class="btn btn-primary" style="margin-top: 1rem;">Book Appointment</a>
+</div>
+{% else %}
+{% for appt in appointments %}
+<div class="glass-card" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+            <h3 style="margin: 0 0 0.5rem 0;">With {{ appt.doctor_name }}</h3>
+            <p style="color: #6b7280; margin: 0;"><i class="far fa-clock"></i> {{ appt.time }}</p>
+        </div>
+        <div
+            class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
+            {{ appt.status }}
+        </div>
+    </div>
+
+    <div class="timeline">
+        <div
+            class="step {% if appt.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] %}completed{% endif %}">
+            <i class="fas fa-calendar-check"></i>
+            <small>Booked</small>
+        </div>
+        <div
+            class="step {% if appt.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] %}completed{% elif appt.status == 'BOOKED' %}active{% endif %}">
+            <i class="fas fa-hospital-user"></i>
+            <small>Check-In</small>
+        </div>
+        <div
+            class="step {% if appt.status in ['CONSULTING', 'COMPLETED'] %}completed{% elif appt.status == 'CHECKED-IN' %}active{% endif %}">
+            <i class="fas fa-stethoscope"></i>
+            <small>Consulting</small>
+        </div>
+        <div
+            class="step {% if appt.status == 'COMPLETED' %}completed{% elif appt.status == 'CONSULTING' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i>
+            <small>Completed</small>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

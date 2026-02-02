@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medtrack | Patient Journey System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel">
+      <div class="brand">
+        <h2 class="text-gradient"><i class="fas fa-heartbeat"></i> Medtrack</h2>
+      </div>
+
+      <nav>
+        <a href="{{ url_for('home') }}" class="btn"><i class="fas fa-home"></i> Home</a>
+        <a href="{{ url_for('about') }}" class="btn"><i class="fas fa-info-circle"></i> About</a>
+
+        {% if current_role == 'patient' %}
+        <a href="{{ url_for('patient_dashboard') }}"
+          class="btn {% if request.endpoint == 'patient_dashboard' %}btn-primary{% endif %}"><i class="fas fa-home"></i>
+          Dashboard</a>
+        <a href="{{ url_for('patient_assistant') }}"
+          class="btn {% if request.endpoint == 'patient_assistant' %}btn-primary{% endif %}"><i
+            class="fas fa-robot"></i> AI Health Companion</a>
+        <a href="{{ url_for('patient_chat') }}"
+          class="btn {% if request.endpoint == 'patient_chat' %}btn-primary{% endif %}"><i class="fas fa-comments"></i>
+          Chat with Doctor</a>
+        <a href="{{ url_for('book_appointment') }}"
+          class="btn {% if request.endpoint == 'book_appointment' %}btn-primary{% endif %}"><i
+            class="fas fa-calendar-plus"></i> Book Now</a>
+        <a href="{{ url_for('patient_invoices') }}"
+          class="btn {% if request.endpoint == 'patient_invoices' %}btn-primary{% endif %}"><i
+            class="fas fa-file-invoice-dollar"></i> Invoices</a>
+        <a href="{{ url_for('patient_vault') }}"
+          class="btn {% if request.endpoint == 'patient_vault' %}btn-primary{% endif %}"><i
+            class="fas fa-file-medical"></i> Medical Vault</a>
+
+        <button onclick="toggleEmergency()" class="btn"
+          style="background: #fee2e2; color: #ef4444; margin-top: 1rem; border: 1px solid #fecaca; font-weight: bold; animation: pulse 2s infinite;">
+          <i class="fas fa-ambulance"></i> SOS / Emergency
+        </button>
+        {% elif current_role == 'doctor' %}
+        <a href="{{ url_for('doctor_dashboard') }}"
+          class="btn {% if request.endpoint == 'doctor_dashboard' %}btn-primary{% endif %}"><i
+            class="fas fa-stethoscope"></i> Dashboard</a>
+        <a href="{{ url_for('doctor_chat_view') }}"
+          class="btn {% if request.endpoint == 'doctor_chat_view' %}btn-primary{% endif %}"><i
+            class="fas fa-comments"></i> Comm Center</a>
+        {% endif %}
+
+        <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 1rem 0;">
+
+        <a href="{{ url_for('logout') }}" class="btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </nav>
+
+      <div style="margin-top: auto; font-size: 0.8rem; color: #6b7280;">
+        Logged in as<br><strong>{{ current_user }}</strong>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-container" style="margin-bottom: 1rem;">
+        {% for category, message in messages %}
+        <div class="glass-card flash-message"
+          style="background: white; border-left: 4px solid var(--secondary); padding: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+          <span>{{ message }}</span>
+          <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor: pointer;"></i>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Emergency Modal -->
+  <div id="emergencyModal"
+    style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="glass-panel"
+      style="background: white; padding: 2rem; max-width: 400px; width: 90%; text-align: center; border: 2px solid #ef4444;">
+      <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
+      <h2 style="color: #ef4444; margin: 0 0 0.5rem 0;">Emergency Contacts</h2>
+      <p style="color: #6b7280; margin-bottom: 1.5rem;">For immediate assistance, please call the following numbers:</p>
+
+      <a href="tel:911"
+        style="display: block; background: #ef4444; color: white; padding: 1rem; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem;">
+        <i class="fas fa-phone-alt"></i> 911 (Ambulance)
+      </a>
+      <a href="tel:+1-800-MED-HELP"
+        style="display: block; background: #f3f4f6; color: #374151; padding: 1rem; border-radius: 8px; text-decoration: none; font-weight: 600;">
+        <i class="fas fa-phone"></i> +1-800-MED-HELP
+      </a>
+
+      <button onclick="toggleEmergency()"
+        style="margin-top: 1.5rem; background: transparent; border: none; color: #6b7280; cursor: pointer; text-decoration: underline;">Close</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    function toggleEmergency() {
+      const modal = document.getElementById('emergencyModal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    // CSS Animation for Pulse
+    const style = document.createElement('style');
+    style.innerHTML = `
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            }
+        `;
+    document.head.appendChild(style);
+  </script>
+</body>
+
+</html>

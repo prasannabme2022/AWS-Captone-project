@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Medtrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="login-left glass-panel">
+            <div class="login-form-box">
+                <h1 class="text-gradient" style="margin-bottom: 0.5rem;">Medtrack.</h1>
+                <p style="color: #6b7280; margin-bottom: 2rem;">Patient Journey Management System</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div style="color: red; margin-bottom: 1rem;">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-input" placeholder="e.g. patient@example.com"
+                            required value="patient@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-input" placeholder="••••••••" required
+                            value="password123">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+
+                    <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; text-align: center;">
+                        <p><strong>Demo Credentials:</strong></p>
+                        <p>Patient: patient@example.com / password123</p>
+                        <p>Doctor: doctor@example.com / password123</p>
+                    </div>
+                </form>
+                </form>
+
+                <div style="margin-top: 2rem; text-align: center; border-top: 1px solid #f3f4f6; padding-top: 1rem;">
+                    <a href="{{ url_for('admin_login') }}"
+                        style="font-size: 0.8rem; color: #6b7280; text-decoration: none;">
+                        System Administrator?
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="login-right"></div>
+    </div>
+
+</body>
+
+</html>

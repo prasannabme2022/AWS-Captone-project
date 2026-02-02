@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #0f172a;">
+    <div
+        style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); padding: 3rem; border-radius: 16px; width: 100%; max-width: 400px; backdrop-filter: blur(10px);">
+
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; color: #38bdf8; margin-bottom: 0.5rem;"><i class="fas fa-shield-alt"></i></div>
+            <h2 style="color: #f1f5f9; margin: 0; font-weight: 300; letter-spacing: 1px;">COMMAND ACCESS</h2>
+            <p style="color: #94a3b8; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">Executive
+                Intelligence</p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label
+                    style="color: #cbd5e1; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Identity</label>
+                <input type="email" name="email" class="form-input"
+                    style="background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white;"
+                    placeholder="admin@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label
+                    style="color: #cbd5e1; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Key</label>
+                <input type="password" name="password" class="form-input"
+                    style="background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white;"
+                    placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn"
+                style="width: 100%; background: #0ea5e9; color: white; border: none; padding: 1rem; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin-top: 1rem;">
+                Authenticate
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 2rem; color: #475569; font-size: 0.8rem;">
+            SECURE SYSTEM • ASIA/KOLKATA • MONITORED
+        </div>
+    </div>
+</div>
+{% endblock %}

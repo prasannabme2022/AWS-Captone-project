@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel text-center" style="max-width: 1000px; margin: 2rem auto; padding: 2rem;">
+    <h2 class="text-gradient mb-4">Multimodal Disease Prediction</h2>
+    <p class="text-gray-600 mb-6">Upload specialized medical data for advanced AI analysis.</p>
+
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; text-align: left;">
+
+        <!-- Image Processing -->
+        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid #e5e7eb;">
+            <div style="color: #2563eb; font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-x-ray"></i> Image
+                Analysis</div>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Upload X-Rays, MRIs, or CT Scans.</p>
+            <form action="{{ url_for('multimodal_predict') }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="type" value="image">
+                <input type="file" name="file" class="form-control" accept="image/*" required
+                    style="margin-bottom: 1rem;">
+                <button type="submit" class="btn btn-primary w-full">Analyze Image</button>
+            </form>
+        </div>
+
+        <!-- Signal Processing -->
+        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid #e5e7eb;">
+            <div style="color: #dc2626; font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-wave-square"></i>
+                Signal Processing</div>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Upload ECG/EEG data (CSV or Text).</p>
+            <form action="{{ url_for('multimodal_predict') }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="type" value="signal">
+                <input type="file" name="file" class="form-control" accept=".csv,.txt" required
+                    style="margin-bottom: 1rem;">
+                <button type="submit" class="btn btn-primary w-full" style="background: #dc2626;">Analyze
+                    Signal</button>
+            </form>
+        </div>
+
+        <!-- Orthopedics (SVM) -->
+        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid #e5e7eb;">
+            <div style="color: #7c3aed; font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-bone"></i> Bone
+                Fracture AI</div>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">SVM Analysis of X-Ray Images.</p>
+            <form action="{{ url_for('multimodal_predict') }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="type" value="fracture">
+                <input type="file" name="file" class="form-control" accept="image/*" required
+                    style="margin-bottom: 1rem;">
+                <button type="submit" class="btn btn-primary w-full" style="background: #7c3aed;">Detect
+                    Fracture</button>
+            </form>
+        </div>
+
+        <!-- Genomics -->
+        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid #e5e7eb;">
+            <div style="color: #059669; font-size: 1.5rem; margin-bottom: 1rem;"><i class="fas fa-dna"></i> Genomic
+                Sequencing</div>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Input DNA/RNA Sequence Data.</p>
+            <form action="{{ url_for('multimodal_predict') }}" method="post">
+                <input type="hidden" name="type" value="genomics">
+                <textarea name="sequence" class="form-control" rows="3" placeholder="GATTACA..." required
+                    style="margin-bottom: 1rem; width: 100%;"></textarea>
+                <button type="submit" class="btn btn-primary w-full" style="background: #059669;">Analyze
+                    Genome</button>
+            </form>
+        </div>
+    </div>
+
+    {% if result %}
+    <div class="glass-panel" style="margin-top: 3rem; background: #f0fdf4; border-color: #bbf7d0;">
+        <h3 style="color: #166534; margin-bottom: 1rem;"><i class="fas fa-check-circle"></i> Analysis Complete</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; text-align: left;">
+            <div>
+                <p><strong>Modality:</strong> {{ result.modality }}</p>
+                <p><strong>Primary Prediction:</strong> <span
+                        style="font-size: 1.2rem; font-weight: bold; color: #166534;">{{ result.prediction }}</span></p>
+                <p><strong>Confidence Score:</strong> {{ result.confidence }}</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.8); padding: 1rem; border-radius: 8px;">
+                <strong>Clinical Details:</strong><br>
+                {{ result.analysis }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
