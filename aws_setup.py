@@ -42,7 +42,42 @@ try:
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
     sns_client = boto3.client('sns', region_name=AWS_REGION)
     
-    # Initialize all DynamoDB tables
+    # Table configurations
+    TABLES_CONFIG = [
+        {'name': PATIENTS_TABLE, 'key': 'email'},
+        {'name': DOCTORS_TABLE, 'key': 'email'},
+        {'name': APPOINTMENTS_TABLE, 'key': 'appointment_id'},
+        {'name': MEDICAL_VAULT_TABLE, 'key': 'vault_id'},
+        {'name': BLOOD_BANK_TABLE, 'key': 'blood_group'},
+        {'name': INVOICES_TABLE, 'key': 'invoice_id'},
+        {'name': CHAT_MESSAGES_TABLE, 'key': 'message_id'},
+        {'name': MOOD_LOGS_TABLE, 'key': 'mood_id'}
+    ]
+
+    def create_tables():
+        """Create DynamoDB tables if they don't exist"""
+        existing_tables = [t.name for t in dynamodb.tables.all()]
+        
+        for table_config in TABLES_CONFIG:
+            table_name = table_config['name']
+            key_name = table_config['key']
+            
+            if table_name not in existing_tables:
+                logger.info(f"Creating table: {table_name}")
+                try:
+                    dynamodb.create_table(
+                        TableName=table_name,
+                        KeySchema=[{'AttributeName': key_name, 'KeyType': 'HASH'}],
+                        AttributeDefinitions=[{'AttributeName': key_name, 'AttributeType': 'S'}],
+                        ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+                    )
+                    logger.info(f"Table {table_name} creation initiated.")
+                except ClientError as e:
+                    logger.error(f"Failed to create table {table_name}: {e}")
+            else:
+                logger.info(f"Table {table_name} already exists.")
+
+    # Initialize all DynamoDB tables (lazy reference)
     patients_table = dynamodb.Table(PATIENTS_TABLE)
     doctors_table = dynamodb.Table(DOCTORS_TABLE)
     appointments_table = dynamodb.Table(APPOINTMENTS_TABLE)
@@ -55,7 +90,8 @@ try:
     logger.info("AWS services initialized successfully")
 except Exception as e:
     logger.error(f"Failed to initialize AWS services: {e}")
-    raise
+    # Continue execution for local testing handling or graceful failure
+    pass
 
 # ============================================
 # HELPER FUNCTIONS
@@ -877,6 +913,12 @@ def invoices():
 
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
+    print("Initializing DynamoDB Tables...")
+    try:
+        create_tables()
+    except Exception as e:
+        print(f"Warning: Could not create tables (Check AWS Credentials): {e}")
+
     print("Starting MedTrack Server with AWS Integration...")
     print(f"Server started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     app.run(host='0.0.0.0', port=5000, debug=True)
