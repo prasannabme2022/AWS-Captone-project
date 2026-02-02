@@ -329,13 +329,16 @@ def create_appointment(patient_email, doctor_email, appointment_date, symptoms, 
         
         appointments_table.put_item(Item=appointment_data)
         
-        # Get patient and doctor names
+        # Get patient and doctor names safely
         patient = get_patient(patient_email)
         doctor = get_doctor(doctor_email)
         
+        patient_name = patient.get('name', patient_email) if patient else patient_email
+        doctor_name = doctor.get('name', doctor_email) if doctor else doctor_email
+        
         # Send notification
         send_notification(
-            f"New appointment booked by {patient.get('name', patient_email)} with Dr. {doctor.get('name', doctor_email)} on {appointment_date}",
+            f"New appointment booked by {patient_name} with Dr. {doctor_name} on {appointment_date}",
             "New Appointment Booked"
         )
         
