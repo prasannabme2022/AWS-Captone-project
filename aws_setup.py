@@ -816,7 +816,8 @@ def logout():
 
 @app.route('/admin/login')
 def admin_login():
-    return render_template('login.html')
+    flash("Please log in with Administrator credentials.", "info")
+    return redirect(url_for('login'))
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
