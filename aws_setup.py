@@ -408,7 +408,9 @@ def get_patient_appointments(patient_email):
         # Enrich appointments with details for display
         for appt in appointments:
             # Map time
-            appt['time'] = appt.get('appointment_date', 'N/A').replace('T', ' ')
+            # Map time
+            date_val = appt.get('appointment_date')
+            appt['time'] = str(date_val).replace('T', ' ') if date_val else 'N/A'
             
             # Get Doctor Name
             if 'doctor_email' in appt:
