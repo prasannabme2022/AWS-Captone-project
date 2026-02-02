@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">Financial Records</h1>
+            <p style="color: #6b7280;">View all invoices and payments.</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 1rem; text-align: left;">Invoice ID</th>
+                <th style="padding: 1rem; text-align: left;">Amount</th>
+                <th style="padding: 1rem; text-align: left;">Patient ID</th>
+                <th style="padding: 1rem; text-align: left;">Reason</th>
+                <th style="padding: 1rem; text-align: left;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem; font-family: monospace; color: #6b7280;">{{ inv.id }}</td>
+                <td style="padding: 1rem; font-weight: bold;">₹{{ inv.amount }}</td>
+                <td style="padding: 1rem; font-family: monospace;">{{ inv.patient_id }}</td>
+                <td style="padding: 1rem;">{{ inv.reason }}</td>
+                <td style="padding: 1rem;">
+                    <span style="font-size: 0.85rem; padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid currentColor;
+                        {{ 'color: #16a34a; background: #f0fdf4;' if inv.status == 'Paid' else 
+                           'color: #ca8a04; background: #fefce8;' if inv.status == 'Unpaid' else 
+                           'color: #2563eb; background: #eff6ff;' }}">
+                        {{ inv.status }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem; color: #9ca3af;">No invoices found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

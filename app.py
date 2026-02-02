@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 import os
-import database # In-Memory DB (for local testing)
-# import database_dynamo as database # AWS DynamoDB Adapter (use when AWS is configured)
+# import database # In-Memory DB (for local testing)
+import database_dynamo as database # AWS DynamoDB Adapter (PROD)
 from functools import wraps
 import ml_engine
 from sns_service import sns_client # Import AWS SNS Service
@@ -9,7 +9,7 @@ from sns_service import sns_client # Import AWS SNS Service
 import boto3
 
 # AWS Configuration 
-REGION = 'ap-southeast-2' # Updated to Sydney based on ARN 
+REGION = 'ap-south-1' # Updated to Mumbai (India) 
 
 dynamodb = boto3.resource('dynamodb', region_name=REGION)
 sns = boto3.client('sns', region_name=REGION)
@@ -21,7 +21,7 @@ doctor_table = dynamodb.Table('DoctorUser')
 medtrack_data_table = dynamodb.Table('Medtrack_data')
 
 # SNS Topic ARN
-SNS_TOPIC_ARN = 'arn:aws:sns:ap-southeast-2:050690756868:Medtrack_cloud_enabled_healthcare_management'
+SNS_TOPIC_ARN = 'arn:aws:sns:ap-south-1:050690756868:Medtrack_cloud_enabled_healthcare_management'
 
 app = Flask(__name__)
 app.secret_key = 'supersecuritykey_medtrack_dev' # Use env var in production
@@ -120,16 +120,75 @@ def admin_login():
 @role_required('admin')
 def admin_dashboard():
     patients = database.get_all_patients()
+    doctors = database.get_all_doctors()
     blood_stock = database.get_blood_stock()
     capacity = database.get_hospital_capacity()
     dept_load = database.get_department_load()
     pending_donations = database.get_pending_donations()
+    
+    # Advanced Stats for Dashboard UI
+    stats = {
+        'doctors': len(doctors),
+        'patients': len(patients),
+        'appointments': len(database.appointments),
+        'records': sum(len(v) for v in database.records.values()),
+        'invoices': len(database.invoices),
+        'departments': len(set(d['department'] for d in doctors)) if doctors else 0,
+        'income': sum(inv['amount'] for inv in database.invoices.values() if inv['status'] == 'Paid'),
+        'pending_income': sum(inv['amount'] for inv in database.invoices.values() if inv['status'] == 'Unpaid')
+    }
+
     return render_template('admin/dashboard.html', 
                          patients=patients, 
                          blood_stock=blood_stock, 
                          capacity=capacity, 
                          dept_load=dept_load,
-                         pending_donations=pending_donations)
+                         pending_donations=pending_donations,
+                         stats=stats)
+
+# --- New Admin Management Routes ---
+
+@app.route('/admin/manage/doctors')
+@login_required
+@role_required('admin')
+def admin_doctors():
+    doctors = database.get_all_doctors()
+    return render_template('admin/doctors_list.html', doctors=doctors)
+
+@app.route('/admin/manage/patients')
+@login_required
+@role_required('admin')
+def admin_patients():
+    patients = database.get_all_patients()
+    return render_template('admin/patients_list.html', patients=patients)
+
+@app.route('/admin/manage/appointments')
+@login_required
+@role_required('admin')
+def admin_appointments():
+    # Convert dict to list
+    all_appts = list(database.appointments.values())
+    return render_template('admin/appointments_list.html', appointments=all_appts)
+
+@app.route('/admin/manage/records')
+@login_required
+@role_required('admin')
+def admin_records():
+    # Flatten records: database.records is {patient_id: [record, record]}
+    all_records = []
+    for pid, record_list in database.records.items():
+        for r in record_list:
+            r['patient_id'] = pid # Ensure ID is available
+            all_records.append(r)
+    return render_template('admin/records_list.html', records=all_records)
+
+@app.route('/admin/manage/invoices')
+@login_required
+@role_required('admin')
+def admin_invoices():
+    # Convert dict to list
+    all_inv = list(database.invoices.values())
+    return render_template('admin/invoices_list.html', invoices=all_inv)
 
 @app.route('/admin/capacity/update', methods=['POST'])
 @login_required
@@ -445,14 +504,78 @@ def get_mood_history():
 @login_required
 @role_required('doctor')
 def doctor_dashboard():
+    # 1. Basic Data
     appointments = database.get_appointments_by_doctor(session['user_id'])
     weekly_stats = database.get_weekly_stats(session['user_id'])
-    
-    # Get alerts for low stock
     blood_stock = database.get_blood_stock()
     alerts = [data for data in blood_stock.values() if data['status'] in ['Low', 'Critical']]
+
+    # 2. Key Metrics for New UI
+    total_patients_count = len(database.get_all_patients()) # Mock metric
     
-    return render_template('doctor/dashboard.html', appointments=appointments, weekly_stats=weekly_stats, alerts=alerts)
+    # Filter for Today
+    today_str = database.get_formatted_date_time().split(' ')[0]
+    today_appointments = [a for a in appointments if a.get('time', '').startswith(today_str)]
+    
+    today_count = len(today_appointments)
+    today_patient_count = len(set(a['patient_id'] for a in today_appointments))
+    
+    # 3. Next Patient Details
+    # Find the earliest upcoming appointment that isn't completed
+    upcoming = [a for a in appointments if a['status'] in ['BOOKED', 'CHECKED-IN']]
+    # Sort by time (string sort works for ISO-like, but our mock might vary. Assuming logic holds)
+    upcoming.sort(key=lambda x: x.get('time', ''))
+    
+    next_patient = upcoming[0] if upcoming else None
+    next_patient_details = None
+    if next_patient:
+        # Fetch full patient object
+        next_patient_details = database.users.get(next_patient['patient_id'])
+        # Merge appointment specific info
+        if next_patient_details:
+             next_patient_details['appt_reason'] = next_patient.get('reason', 'General Checkup')
+             next_patient_details['appt_time'] = next_patient.get('time', '')
+
+    return render_template('doctor/dashboard.html', 
+                           appointments=appointments, 
+                           today_appointments=today_appointments, # For specific list
+                           weekly_stats=weekly_stats, 
+                           alerts=alerts,
+                           stats={
+                               "total_patients": total_patients_count,
+                               "today_patients": today_patient_count,
+                               "today_appts": today_count
+                           },
+                           next_patient=next_patient_details)
+
+@app.route('/doctor/my_appointments')
+@login_required
+@role_required('doctor')
+def doctor_appointments_list():
+    appointments = database.get_appointments_by_doctor(session['user_id'])
+    return render_template('doctor/appointments_list.html', appointments=appointments)
+
+@app.route('/doctor/my_patients')
+@login_required
+@role_required('doctor')
+def doctor_patients_list():
+    # In a real app, join appointments to find unique patients for this doctor
+    # For now, we will show all patients but highlight those with history
+    # Or better, just show customers who have booked this doctor?
+    # Let's show all generic patients for this demo "directory" style or filter
+    # To be safe and show functionality, let's filter patients who have at least one appointment with this doctor
+    
+    my_appts = database.get_appointments_by_doctor(session['user_id'])
+    patient_ids = set(a['patient_id'] for a in my_appts)
+    
+    all_patients = database.get_all_patients()
+    # Filter text matches or ID matches
+    my_patients = [p for p in all_patients if p['id'] in patient_ids or p['name'] in patient_ids] 
+    
+    # If no patients found (fresh demo), show all for visibility? No, keep it realistic.
+    # Actually, the Mock DB usually has IDs like 'Patient A'.
+    
+    return render_template('doctor/patients_list.html', patients=my_patients)
 
 @app.route('/doctor/advance/<appt_id>')
 @login_required

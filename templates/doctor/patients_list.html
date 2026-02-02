@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">My Patients</h1>
+            <p style="color: #6b7280;">Patients under your care.</p>
+        </div>
+        <a href="{{ url_for('doctor_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for patient in patients %}
+        <div
+            style="background: white; border: 1px solid #f3f4f6; border-radius: 12px; padding: 1.5rem; transition: transform 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                <div
+                    style="width: 50px; height: 50px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; color: #2563eb; font-size: 1.2rem;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 style="margin: 0; color: #1f2937; font-size: 1.1rem;">{{ patient.name }}</h3>
+                    <p style="margin: 0.25rem 0 0; color: #6b7280; font-size: 0.85rem;">ID: {{ patient.id }}</p>
+                </div>
+            </div>
+
+            <div
+                style="border-top: 1px solid #f3f4f6; padding-top: 1rem; margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('doctor_view_vault', patient_id=patient.id) }}"
+                    style="flex: 1; text-align: center; padding: 0.5rem; background: #eff6ff; color: #2563eb; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">
+                    Medical History
+                </a>
+                <a href="#"
+                    style="flex: 1; text-align: center; padding: 0.5rem; background: #f9fafb; color: #4b5563; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">
+                    Details
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #9ca3af;">
+            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>No patients found linked to your appointments.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

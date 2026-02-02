@@ -5,17 +5,44 @@ import pytz
 from botocore.exceptions import ClientError
 
 # --- Configuration ---
-REGION = os.environ.get('AWS_REGION', 'us-east-1') # Default to us-east-1 if not set, user can change
-# Note: User is in ap-southeast-2 (Sydney) based on screenshot, but code should be generic or use env var.
-# We will rely on env var or default.
+REGION = os.environ.get('AWS_REGION', 'ap-south-1') # Default to Mumbai
 
 try:
     dynamodb = boto3.resource('dynamodb', region_name=REGION)
-    # The 4 Tables
-    admin_table = dynamodb.Table('AdminUser') # User created AdminUser (Singular) in console
+    # The 8 Tables matching aws_setup.py
+    # We map the legacy simple names to the actual PROD tables
+    admin_table = dynamodb.Table('medtrack_admin') # Not in aws_setup, maybe use logic for admin?
+    doctor_table = dynamodb.Table('medtrack_doctors')
+    patient_table = dynamodb.Table('medtrack_patients')
+    data_table = dynamodb.Table('medtrack_data') # This seems to be the catch-all for app.py logic
+    # Note: app.py uses a single 'Medtrack_data' for records/appts in the adapter logic
+    # But aws_setup.py creates 'medtrack_appointments', 'medtrack_medical_vault' etc separately.
+    # This is a schema mismatch. app.py's `database_dynamo` adapter writes to ONE table, 
+    # while `aws_setup.py` creates MANY tables.
+    
+    # DECISION: We must stick to `app.py`'s logic since that's the running code.
+    # We will rename the table variables to match what `database_dynamo.py` expects, 
+    # but pointing to the names likely created or intended.
+    # If the user ran aws_setup.py, they have multi-table. 
+    # If they run app.py with this adapter, they expect single-table (mostly).
+    
+    # Let's check `database_dynamo.py` logic again. 
+    # It writes 'APPT#' to `data_table`. 
+    # `aws_setup.py` writes to `appointments_table`.
+    
+    # CRITICAL FIX: The current `database_dynamo.py` is a Single-Table Design (STD) adapter.
+    # `aws_setup.py` is a Multi-Table Design (MTD) script.
+    # We cannot easily reconcile them without rewriting one.
+    # Since `app.py` is the application logic, we should probably ensure the 'Medtrack_data' table exists.
+    # I will stick to 'Medtrack_data' for the ST logic, but update the user/doctor tables to match if possible.
+    
+    # Let's just update the region and keep table names consistent with the ADAPTER's expectation for now,
+    # but warn the user they might need to create 'Medtrack_data' if aws_setup didn't.
+    
+    admin_table = dynamodb.Table('AdminUser')
     doctor_table = dynamodb.Table('DoctorUser')
     patient_table = dynamodb.Table('PatientUser')
-    data_table = dynamodb.Table('Medtrack_data') # Case sensitive fix
+    data_table = dynamodb.Table('Medtrack_data')
     
     # Check if they exist (simple check)
     admin_table.load()

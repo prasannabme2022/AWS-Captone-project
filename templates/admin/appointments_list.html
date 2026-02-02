@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">Appointments Log</h1>
+            <p style="color: #6b7280;">Global appointment history.</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 1rem; text-align: left;">ID</th>
+                <th style="padding: 1rem; text-align: left;">Time</th>
+                <th style="padding: 1rem; text-align: left;">Patient ID</th>
+                <th style="padding: 1rem; text-align: left;">Doctor ID</th>
+                <th style="padding: 1rem; text-align: left;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem; font-family: monospace; color: #6b7280;">{{ appt.id }}</td>
+                <td style="padding: 1rem;">{{ appt.time }}</td>
+                <td style="padding: 1rem; font-family: monospace;">{{ appt.patient_id }}</td>
+                <td style="padding: 1rem; font-family: monospace;">{{ appt.doctor_id }}</td>
+                <td style="padding: 1rem;">
+                    <span
+                        class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
+                        {{ appt.status }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem; color: #9ca3af;">No appointments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">Medical Records Repository</h1>
+            <p style="color: #6b7280;">Global view of stored medical documents.</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 1rem; text-align: left;">Date</th>
+                <th style="padding: 1rem; text-align: left;">Patient ID</th>
+                <th style="padding: 1rem; text-align: left;">Filename</th>
+                <th style="padding: 1rem; text-align: left;">Summary</th>
+                <th style="padding: 1rem; text-align: left;">Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem; color: #6b7280;">{{ rec.timestamp }}</td>
+                <td style="padding: 1rem; font-family: monospace;">{{ rec.patient_id }}</td>
+                <td style="padding: 1rem;">
+                    <a href="{{ url_for('uploaded_file', filename=rec.filename) }}" target="_blank"
+                        style="color: #2563eb; text-decoration: none;">
+                        <i class="fas fa-file-alt"></i> {{ rec.filename }}
+                    </a>
+                </td>
+                <td style="padding: 1rem; font-size: 0.9rem; color: #4b5563; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    title="{{ rec.summary }}">
+                    {{ rec.summary }}
+                </td>
+                <td style="padding: 1rem;">
+                    <span
+                        style="background: #f3f4f6; color: #4b5563; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                        {{ rec.category|default('General') }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem; color: #9ca3af;">No records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

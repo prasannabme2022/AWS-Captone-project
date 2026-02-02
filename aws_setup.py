@@ -23,7 +23,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # AWS Configuration
-AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
+AWS_REGION = os.getenv('AWS_REGION', 'ap-south-1')
 PATIENTS_TABLE = 'medtrack_patients'
 DOCTORS_TABLE = 'medtrack_doctors'
 APPOINTMENTS_TABLE = 'medtrack_appointments'
@@ -32,7 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:medtrack_notifications')
+SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:ap-south-1:YOUR_ACCOUNT_ID:medtrack_notifications')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

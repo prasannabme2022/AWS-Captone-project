@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">My Appointments</h1>
+            <p style="color: #6b7280;">Manage your schedule and consultations.</p>
+        </div>
+        <a href="{{ url_for('doctor_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 1rem; text-align: left;">Time</th>
+                <th style="padding: 1rem; text-align: left;">Patient</th>
+                <th style="padding: 1rem; text-align: left;">Reason</th>
+                <th style="padding: 1rem; text-align: left;">Status</th>
+                <th style="padding: 1rem; text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem; font-weight: 500; color: #374151;">
+                    {{ appt.time }}
+                </td>
+                <td style="padding: 1rem;">
+                    <div style="display: flex; align-items: center;">
+                        <div
+                            style="width: 32px; height: 32px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; color: #0284c7;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {{ appt.patient_id }}
+                    </div>
+                </td>
+                <td style="padding: 1rem; color: #6b7280;">{{ appt.reason or 'General Consultation' }}</td>
+                <td style="padding: 1rem;">
+                    <span
+                        class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
+                        {{ appt.status }}
+                    </span>
+                </td>
+                <td style="padding: 1rem; text-align: right;">
+                    <a href="{{ url_for('advance_status', appt_id=appt.id) }}"
+                        style="color: #2563eb; text-decoration: none; font-weight: 500; margin-right: 1rem;">
+                        Update Status
+                    </a>
+                    <a href="{{ url_for('review_appointment', appt_id=appt.id) }}"
+                        style="color: #4b5563; text-decoration: none; font-size: 0.9rem;">
+                        <i class="fas fa-edit"></i> Notes
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem; color: #9ca3af;">No appointments scheduled.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

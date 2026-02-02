@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="text-gradient">Doctor Management</h1>
+            <p style="color: #6b7280;">View and manage medical staff.</p>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn" style="background: #f3f4f6; color: #374151;">Back to
+            Dashboard</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 1rem; text-align: left;">Name</th>
+                <th style="padding: 1rem; text-align: left;">Department</th>
+                <th style="padding: 1rem; text-align: left;">Email</th>
+                <th style="padding: 1rem; text-align: left;">ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+                <td style="padding: 1rem; font-weight: 500;">
+                    <div style="display: flex; align-items: center;">
+                        <div
+                            style="width: 32px; height: 32px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; color: #2563eb;">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        {{ doctor.name }}
+                    </div>
+                </td>
+                <td style="padding: 1rem;">
+                    <span
+                        style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.85rem; color: #4b5563;">
+                        {{ doctor.department }}
+                    </span>
+                </td>
+                <td style="padding: 1rem;">{{ doctor.email }}</td>
+                <td style="padding: 1rem; color: #6b7280; font-family: monospace;">{{ doctor.id }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 3rem; color: #9ca3af;">No doctors found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

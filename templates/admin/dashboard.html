@@ -1,13 +1,192 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="glass-panel" style="max-width: 1200px; margin: 0 auto;">
-    <h2 class="text-gradient" style="margin-bottom: 0.5rem;">Command Center</h2>
-    <p style="color: #6b7280; margin-bottom: 2rem;">Real-time Hospital Resource Monitoring</p>
+<div style="background-color: #f8f9fa; min-height: 100%; padding-bottom: 2rem;">
+    <!-- Dashboard Header -->
+    <div style="margin-bottom: 2rem;">
+        <h1 style="color: #1e293b; font-size: 1.8rem; margin: 0; font-weight: 700;">Dashboard</h1>
+        <div style="font-size: 0.9rem; color: #64748b; margin-top: 0.2rem;">
+            Home &gt; <span style="color: #2563eb;">Dashboard</span>
+        </div>
+    </div>
 
-    <!-- Top Stats Row -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Stats Grid -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Card 1: Department -->
+        <a href="#" style="text-decoration: none; cursor: default;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Department</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.departments }}</div>
+                </div>
+                <div
+                    style="background: #eff6ff; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                    <i class="fas fa-sitemap" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 2: Doctor -->
+        <a href="{{ url_for('admin_doctors') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Doctor</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.doctors }}</div>
+                </div>
+                <div
+                    style="background: #f0fdf4; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                    <i class="fas fa-user-md" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 3: Patient -->
+        <a href="{{ url_for('admin_patients') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Patient</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.patients }}</div>
+                </div>
+                <div
+                    style="background: #eff6ff; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                    <i class="fas fa-user-injured" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 4: Appointments -->
+        <a href="{{ url_for('admin_appointments') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Total Appointment</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.appointments }}</div>
+                </div>
+                <div
+                    style="background: #fefce8; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ca8a04;">
+                    <i class="fas fa-calendar-check" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Row 2 -->
+        <!-- Card 5: Case Studies -->
+        <a href="{{ url_for('admin_records') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Medical Records</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.records }}</div>
+                </div>
+                <div
+                    style="background: #fefce8; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ca8a04;">
+                    <i class="fas fa-file-medical" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 6: Invoice -->
+        <a href="{{ url_for('admin_invoices') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Invoices</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.invoices }}</div>
+                </div>
+                <div
+                    style="background: #eff6ff; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                    <i class="fas fa-file-invoice-dollar" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 7: Prescriptions -->
+        <a href="{{ url_for('admin_records') }}?type=prescription" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Prescriptions</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">{{ stats.appointments }}</div>
+                    <!-- Proxy -->
+                </div>
+                <div
+                    style="background: #f0fdf4; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                    <i class="fas fa-pills" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Card 8: Payment -->
+        <a href="{{ url_for('admin_invoices') }}" style="text-decoration: none;">
+            <div
+                style="background: white; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: start; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s;">
+                <div>
+                    <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem;">Payments</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">0</div> <!-- Mock -->
+                </div>
+                <div
+                    style="background: #eff6ff; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                    <i class="fas fa-credit-card" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Monthly Users Chart -->
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <h3 style="margin: 0 0 1.5rem 0; color: #334155; font-size: 1.1rem;">Monthly Registered Users</h3>
+            <div style="height: 300px;">
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Earnings Panel -->
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin: 0; color: #334155; font-size: 1.1rem;">Monthly Earning</h3>
+                <span
+                    style="background: #0f766e; color: white; padding: 0.2rem 0.8rem; border-radius: 6px; font-size: 0.8rem;">Weekly</span>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <div style="color: #64748b; font-size: 0.9rem;">Total Income</div>
+                <div style="font-size: 2rem; font-weight: 700; color: #1e293b;">₹{{ stats.pending_income if stats.income
+                    == 0 else stats.income }}</div>
+                <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">
+                    <i class="fas fa-arrow-down"></i> From Previous week (Mock)
+                </div>
+            </div>
+
+            <!-- Simple Circles for Analytics -->
+            <div style="display: flex; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <div
+                        style="width: 80px; height: 80px; border-radius: 50%; border: 6px solid #eff6ff; border-top-color: #3b82f6; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                        <span style="color: #3b82f6; font-weight: bold;">40%</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: #64748b;">1st 15 days</span>
+                </div>
+                <div style="text-align: center;">
+                    <div
+                        style="width: 80px; height: 80px; border-radius: 50%; border: 6px solid #fefce8; border-top-color: #eab308; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                        <span style="color: #eab308; font-weight: bold;">60%</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: #64748b;">Last 15 days</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operation Features (Blood Bank, Capacity) - Kept as functional tools -->
+    <h3 style="color: #1e293b; margin-bottom: 1rem;">Operational Tools</h3>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
         <!-- Blood Bank Widget -->
         <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -30,11 +209,9 @@
         <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
             <h3 style="margin: 0 0 1rem 0; color: #3b82f6;"><i class="fas fa-procedures"></i> Ward Capacity</h3>
             {% for ward, status in capacity.items() %}
-            <div style="margin-bottom: 0.5rem; cursor: pointer;"
-                onclick="openEditModal('{{ ward }}', '{{ status.occupied }}', '{{ status.total }}', '{{ status.status }}')">
+            <div style="margin-bottom: 0.5rem;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.2rem;">
-                    <span>{{ ward }} <i class="fas fa-pen"
-                            style="font-size: 0.7rem; color: #9ca3af; margin-left: 0.5rem;"></i></span>
+                    <span>{{ ward }}</span>
                     <span style="font-weight: bold;">{{ status.occupied }}/{{ status.total }}</span>
                 </div>
                 <div style="background: #e5e7eb; height: 6px; border-radius: 3px; overflow: hidden;">
@@ -44,130 +221,39 @@
                 </div>
             </div>
             {% endfor %}
-
-            <!-- Edit Capacity Modal -->
-            <div id="capacityModal"
-                style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-                <form action="{{ url_for('update_capacity') }}" method="POST" class="glass-panel"
-                    style="background: white; padding: 2rem; width: 300px;">
-                    <h3 style="margin-top: 0;">Update Capacity</h3>
-                    <input type="hidden" name="ward" id="edit-ward-name">
-
-                    <div class="form-group">
-                        <label class="form-label" id="edit-ward-label">Ward</label>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Occupied Beds</label>
-                        <input type="number" name="occupied" id="edit-occupied" class="form-input" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <select name="status" id="edit-status" class="form-input">
-                            <option value="Normal">Normal</option>
-                            <option value="High Load">High Load</option>
-                            <option value="Critical">Critical</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                        <button type="button" onclick="document.getElementById('capacityModal').style.display='none'"
-                            class="btn" style="flex: 1; background: #f3f4f6; color: #374151;">Cancel</button>
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Update</button>
-                    </div>
-                </form>
-            </div>
-
-            <script>
-                function openEditModal(ward, occupied, total, status) {
-                    document.getElementById('capacityModal').style.display = 'flex';
-                    document.getElementById('edit-ward-name').value = ward;
-                    document.getElementById('edit-ward-label').textContent = `${ward} (Total: ${total})`;
-                    document.getElementById('edit-occupied').value = occupied;
-                    document.getElementById('edit-occupied').max = total;
-                    document.getElementById('edit-status').value = status;
-                }
-            </script>
-            <!-- Department Load -->
-            <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
-                <h3 style="margin: 0 0 1rem 0; color: #8b5cf6;"><i class="fas fa-network-wired"></i> Quick Stats</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 8px;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #1f2937;">{{ patients|length }}</div>
-                        <div style="font-size: 0.8rem; color: #6b7280;">Patients</div>
-                    </div>
-                    <div style="text-align: center; padding: 1rem; background: #f9fafb; border-radius: 8px;">
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #1f2937;">{{ dept_load.values()|sum }}
-                        </div>
-                        <div style="font-size: 0.8rem; color: #6b7280;">Active Appts</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Donations Widget (New Phase 7) -->
-        <h3 style="margin-bottom: 1rem;">Pending Donations</h3>
-        {% if pending_donations %}
-        <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 2rem;">
-            {% for don in pending_donations %}
-            <div
-                style="min-width: 200px; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb; border-left: 4px solid #f59e0b;">
-                <div style="font-weight: bold; color: #1f2937; margin-bottom: 0.25rem;">{{ don.donor }}</div>
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.5rem;">Group: <strong
-                        style="color: #ef4444;">{{ don.group }}</strong></div>
-                <div style="font-size: 0.8rem; color: #9ca3af; margin-bottom: 1rem;">{{ don.date }}</div>
-                <a href="{{ url_for('verify_blood_donation', don_id=don.id) }}" class="btn btn-primary"
-                    style="width: 100%; text-align: center; padding: 0.5rem;">
-                    <i class="fas fa-check"></i> Verify & Stock
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div
-            style="padding: 1.5rem; background: #f0fdf4; color: #15803d; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #bbf7d0;">
-            <i class="fas fa-check-circle"></i> No pending donation requests.
-        </div>
-        {% endif %}
-
-        <!-- Active Department Load -->
-        <h3 style="margin-bottom: 1rem;">Department Load (Active)</h3>
-        <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 2rem;">
-            {% for dept, count in dept_load.items() %}
-            <div
-                style="min-width: 150px; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb; text-align: center;">
-                <div style="font-weight: bold; color: #4b5563;">{{ dept }}</div>
-                <div style="font-size: 2rem; color: #8b5cf6; font-weight: 800;">{{ count }}</div>
-                <div style="font-size: 0.8rem; color: #9ca3af;">Active</div>
-            </div>
-            {% endfor %}
-            {% if not dept_load %}
-            <div style="padding: 1rem; color: #6b7280;">No active appointments.</div>
-            {% endif %}
-        </div>
-
-        <!-- Patient List -->
-        <h3>Registered Patients</h3>
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f3f4f6; text-align: left;">
-                        <th style="padding: 1rem; border-radius: 8px 0 0 8px;">Name</th>
-                        <th style="padding: 1rem;">Email</th>
-                        <th style="padding: 1rem; border-radius: 0 8px 8px 0;">ID</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for patient in patients %}
-                    <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 1rem; font-weight: 500;">{{ patient.name }}</td>
-                        <td style="padding: 1rem;">{{ patient.email }}</td>
-                        <td style="padding: 1rem; color: #6b7280;">{{ patient.id }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
-    {% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // User Growth Chart
+        const ctx = document.getElementById('userChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Registered Users',
+                    data: [12, 19, 3, 5, 2, 3, 10, 15, 20, 25, 30, 45], // Mock data
+                    backgroundColor: [
+                        '#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#3b82f6', '#10b981',
+                        '#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#f59e0b'
+                    ],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+</script>
+{% endblock %}
