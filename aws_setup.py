@@ -955,7 +955,7 @@ def book_appointment():
             flash('Error booking appointment.', 'error')
     
     doctors = get_all_doctors()
-    return render_template('book_appointment.html', doctors=doctors)
+    return render_template('patient/book.html', doctors=doctors)
 
 @app.route('/ai_chat', methods=['GET', 'POST'])
 def ai_chat():
