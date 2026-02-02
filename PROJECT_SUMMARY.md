@@ -1,23 +1,32 @@
-# 🎉 MedTrack AWS Integration - Project Summary
+## 🏥 MedTrack: A Cloud-Enabled Healthcare Management System
 
-## ✅ What We've Accomplished
+### 🚩 Problem Statement
+Healthcare providers often struggle with fragmented patient records, inefficient appointment scheduling, and a lack of real-time data accessibility, leading to administrative delays and reduced quality of care.
 
-### 📁 Files Created/Updated
+### 💡 Solution Overview
+A centralized, cloud-native healthcare portal built with a Flask backend and hosted on AWS EC2, utilizing DynamoDB for high-speed retrieval of patient and medical data.
 
-#### 1. **aws_setup.py** (Main Application) - ⭐ CORE FILE
-   - **Lines:** 800+
-   - **Features:** Complete Flask application with AWS integration
-   - **AWS Services:** DynamoDB (8 tables) + SNS notifications
-   - **Capabilities:**
-     - Patient & Doctor management
-     - Appointment booking & tracking
-     - Medical vault (file storage & analysis)
-     - AI chatbot for health queries
-     - Blood bank management
-     - Invoice & insurance processing
-     - Real-time chat messaging
-     - Mood tracking for mental health
-   - **Status:** ✅ Production-ready
+### ☁️ Key AWS Services
+- **Amazon EC2**: Hosting the web application.
+- **Amazon DynamoDB**: NoSQL database for secure storage.
+- **AWS SNS**: Real-time notifications for patients and doctors.
+- **AWS IAM**: Secure access control for resources.
+
+### ⚙️ Core Functionalities (MVP)
+Patients can securely register and book appointments, while medical staff can manage patient profiles, track treatment histories, and receive real-time updates via AWS SNS.
+
+### 🔭 Scope (MVP Focus)
+Implementation of a scalable infrastructure using AWS EC2 for hosting, DynamoDB for secure NoSQL storage, and IAM roles for granular access control over sensitive medical records.
+
+### 🌍 Social/Business Impact
+Modernizes healthcare delivery by ensuring data integrity and accessibility, reducing wait times for patients, and allowing practitioners to focus more on clinical care rather than paperwork.
+
+### ⚠️ Potential Challenges
+Configuring security groups for SSH, HTTP, and HTTPS is essential to maintain secure yet public access to the application.
+
+---
+
+## 📁 Project Artifacts & Files
 
 #### 2. **requirements.txt** (Full Dependencies)
    - Flask 3.0.0
