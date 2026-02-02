@@ -1025,6 +1025,24 @@ def ai_chat():
     
     return render_template('patient/assistant.html')
 
+@app.route('/patient_assistant')
+def patient_assistant():
+    return redirect(url_for('ai_chat'))
+
+@app.route('/patient_chat')
+def patient_chat():
+    if 'user_id' not in session or session.get('role') != 'patient':
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    # In a real app we'd load chat history here
+    return render_template('patient/chat.html', recent_doctors=[])
+
+@app.route('/doctor/chat')
+def doctor_chat_view():
+    if session.get('role') != 'doctor': return redirect(url_for('login'))
+    return render_template('doctor/chat.html', recent_patients=[])
+
 @app.route('/patient_vault')
 def patient_vault():
     if 'user_id' not in session or session.get('role') != 'patient':
