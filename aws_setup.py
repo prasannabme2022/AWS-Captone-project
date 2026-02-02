@@ -320,7 +320,7 @@ def create_appointment(patient_email, doctor_email, appointment_date, symptoms, 
             'appointment_date': appointment_date,
             'symptoms': symptoms or '',
             'priority': priority,
-            'status': 'pending',
+            'status': 'BOOKED',
             'diagnosis': '',
             'prescription': '',
             'created_at': get_current_datetime(),
@@ -404,6 +404,19 @@ def get_patient_appointments(patient_email):
             ExpressionAttributeValues={':email': patient_email}
         )
         appointments = [deserialize_item(item) for item in response.get('Items', [])]
+        
+        # Enrich appointments with details for display
+        for appt in appointments:
+            # Map time
+            appt['time'] = appt.get('appointment_date', 'N/A').replace('T', ' ')
+            
+            # Get Doctor Name
+            if 'doctor_email' in appt:
+                doc = get_doctor(appt['doctor_email'])
+                appt['doctor_name'] = doc.get('name', appt['doctor_email']) if doc else appt['doctor_email']
+            else:
+                 appt['doctor_name'] = 'Unknown Doctor'
+                 
         return sorted(appointments, key=lambda x: x.get('created_at', ''), reverse=True)
     except ClientError as e:
         logger.error(f"Error getting patient appointments: {e}")
