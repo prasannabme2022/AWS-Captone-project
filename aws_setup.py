@@ -888,7 +888,35 @@ def doctor_dashboard():
         return redirect(url_for('login'))
     
     appointments = get_doctor_appointments(session['user_id'])
-    return render_template('doctor/dashboard.html', appointments=appointments)
+    
+    # Calculate stats
+    total_patients = len(set(a['patient_id'] for a in appointments))
+    today_appointments = [a for a in appointments if a.get('date') == datetime.now().strftime('%Y-%m-%d')] # Basic check, might need better date parsing
+    
+    stats = {
+        'total_patients': total_patients,
+        'today_patients': len(today_appointments),
+        'today_appts': len(today_appointments)
+    }
+    
+    # Mock alerts and next_patient for demo if list is empty
+    next_patient = None
+    if appointments:
+        # Just pick the first as next for demo
+        first_ppt = appointments[0]
+        next_patient = {
+            'name': first_ppt['patient_id'], # Using ID as name if name not available in appointment
+            'id': first_ppt['patient_id'],
+            'dob': '1990-01-01'
+        }
+        
+    return render_template('doctor/dashboard.html', 
+                         appointments=appointments,
+                         stats=stats,
+                         today_appointments=today_appointments,
+                         next_patient=next_patient,
+                         now_date=datetime.now().strftime('%d %b, %Y'),
+                         alerts=[{'group': 'O-', 'units': 2}])
 
 @app.route('/doctor/patients')
 def doctor_patients_list():
