@@ -772,23 +772,33 @@ def login():
 
             # Check in patients table
             patient = get_patient(email)
-            if patient and check_password_hash(patient['password'], password):
-                session['user_id'] = email
-                session['role'] = 'patient'
-                session['name'] = patient['name']
-                
-                flash(f"Welcome back, {patient['name']}!", 'success')
-                return redirect(url_for('patient_dashboard'))
+            print(f"DEBUG: Retrieved patient for {email}: {patient}")
+            if patient:
+                print(f"DEBUG: Stored hash: {patient.get('password')}, Input password: {password}")
+                is_valid = check_password_hash(patient['password'], password)
+                print(f"DEBUG: Password match: {is_valid}")
+                if is_valid:
+                    session['user_id'] = email
+                    session['role'] = 'patient'
+                    session['name'] = patient['name']
+                    
+                    flash(f"Welcome back, {patient['name']}!", 'success')
+                    return redirect(url_for('patient_dashboard'))
             
             # Check in doctors table
             doctor = get_doctor(email)
-            if doctor and check_password_hash(doctor['password'], password):
-                session['user_id'] = email
-                session['role'] = 'doctor'
-                session['name'] = doctor['name']
-                
-                flash(f"Welcome back, Dr. {doctor['name']}!", 'success')
-                return redirect(url_for('doctor_dashboard'))
+            print(f"DEBUG: Retrieved doctor for {email}: {doctor}")
+            if doctor:
+                print(f"DEBUG: Stored hash: {doctor.get('password')}, Input password: {password}")
+                is_valid = check_password_hash(doctor['password'], password)
+                print(f"DEBUG: Password match: {is_valid}")
+                if is_valid:
+                    session['user_id'] = email
+                    session['role'] = 'doctor'
+                    session['name'] = doctor['name']
+                    
+                    flash(f"Welcome back, Dr. {doctor['name']}!", 'success')
+                    return redirect(url_for('doctor_dashboard'))
             
             flash('Invalid email or password.', 'error')
             
