@@ -890,6 +890,18 @@ def doctor_dashboard():
     appointments = get_doctor_appointments(session['user_id'])
     return render_template('doctor/dashboard.html', appointments=appointments)
 
+@app.route('/doctor/patients')
+def doctor_patients_list():
+    if session.get('role') != 'doctor': return redirect(url_for('login'))
+    # In a real app we would filter by doctor, but for this demo showing all is acceptable or empty list
+    return render_template('doctor/patients_list.html', patients=[])
+
+@app.route('/doctor/appointments')
+def doctor_appointments_list():
+    if session.get('role') != 'doctor': return redirect(url_for('login'))
+    appointments = get_doctor_appointments(session['user_id'])
+    return render_template('doctor/appointments_list.html', appointments=appointments)
+
 @app.route('/book_appointment', methods=['GET', 'POST'])
 def book_appointment():
     if 'user_id' not in session or session.get('role') != 'patient':
