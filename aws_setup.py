@@ -841,7 +841,8 @@ def admin_dashboard():
                          stats=stats,
                          patients=[],
                          blood_stock=get_blood_stock(),
-                         capacity={'ICU': {'status': 'Normal'}},
+                         capacity={'ICU': {'status': 'Normal', 'occupied': 8, 'total': 12}, 
+                                   'General Ward': {'status': 'Normal', 'occupied': 45, 'total': 60}},
                          dept_load={'Cardiology': 20},
                          pending_donations=[])
 
