@@ -191,7 +191,7 @@
         <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h3 style="margin: 0; color: #ef4444;"><i class="fas fa-burn"></i> Blood Bank</h3>
-                <a href="{{ url_for('blood_bank_view') }}" style="font-size: 0.8rem; color: #ef4444;">Manage</a>
+                <a href="{{ url_for('blood_bank') }}" style="font-size: 0.8rem; color: #ef4444;">Manage</a>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 {% for group, data in blood_stock.items() %}
