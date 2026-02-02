@@ -687,7 +687,11 @@ def get_chatbot_response(patient_email, message):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -791,6 +795,12 @@ def logout():
     session.clear()
     flash('Logged out successfully.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/admin/login')
+def admin_login():
+    # Placeholder for AWS setup context
+    flash("Admin panel access is limited in this demo deployment.", "info")
+    return redirect(url_for('login'))
 
 @app.route('/patient_dashboard')
 def patient_dashboard():
