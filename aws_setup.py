@@ -954,8 +954,28 @@ def book_appointment():
         else:
             flash('Error booking appointment.', 'error')
     
+    
+    # Mock Locations for the dropdown
+    locations = {
+        'Maharashtra': {
+            'Mumbai': ['MedTrack Central', 'MedTrack South'],
+            'Pune': ['MedTrack Pune Core']
+        },
+        'Delhi': {
+            'New Delhi': ['MedTrack AIIMS Link', 'MedTrack North']
+        },
+        'Karnataka': {
+            'Bangalore': ['MedTrack Tech Park', 'MedTrack City']
+        }
+    }
+
     doctors = get_all_doctors()
-    return render_template('patient/book.html', doctors=doctors)
+    # Normalize doctors for the template JS (ensure department key exists)
+    for d in doctors:
+        d['department'] = d.get('specialization', 'General')
+        d['availability'] = d.get('status', 'Available')
+
+    return render_template('patient/book.html', doctors=doctors, locations=locations)
 
 @app.route('/ai_chat', methods=['GET', 'POST'])
 def ai_chat():
