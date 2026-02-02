@@ -957,16 +957,42 @@ def book_appointment():
     
     # Mock Locations for the dropdown
     locations = {
-        'Maharashtra': {
-            'Mumbai': ['MedTrack Central', 'MedTrack South'],
-            'Pune': ['MedTrack Pune Core']
-        },
-        'Delhi': {
-            'New Delhi': ['MedTrack AIIMS Link', 'MedTrack North']
-        },
-        'Karnataka': {
-            'Bangalore': ['MedTrack Tech Park', 'MedTrack City']
-        }
+        'Andhra Pradesh': {'Visakhapatnam': ['MedTrack Vizag'], 'Vijayawada': ['MedTrack Vijayawada']},
+        'Arunachal Pradesh': {'Itanagar': ['MedTrack Itanagar']},
+        'Assam': {'Guwahati': ['MedTrack Guwahati']},
+        'Bihar': {'Patna': ['MedTrack Patna']},
+        'Chhattisgarh': {'Raipur': ['MedTrack Raipur']},
+        'Goa': {'Panaji': ['MedTrack Panaji']},
+        'Gujarat': {'Ahmedabad': ['MedTrack Ahmedabad', 'MedTrack Gandhi Nagar'], 'Surat': ['MedTrack Surat']},
+        'Haryana': {'Gurugram': ['MedTrack Cyber City'], 'Faridabad': ['MedTrack Faridabad']},
+        'Himachal Pradesh': {'Shimla': ['MedTrack Shimla']},
+        'Jharkhand': {'Ranchi': ['MedTrack Ranchi']},
+        'Karnataka': {'Bangalore': ['MedTrack Tech Park', 'MedTrack City'], 'Mysore': ['MedTrack Mysore']},
+        'Kerala': {'Kochi': ['MedTrack Kochi'], 'Thiruvananthapuram': ['MedTrack Trivandrum']},
+        'Madhya Pradesh': {'Bhopal': ['MedTrack Bhopal'], 'Indore': ['MedTrack Indore']},
+        'Maharashtra': {'Mumbai': ['MedTrack Central', 'MedTrack South'], 'Pune': ['MedTrack Pune Core'], 'Nagpur': ['MedTrack Nagpur']},
+        'Manipur': {'Imphal': ['MedTrack Imphal']},
+        'Meghalaya': {'Shillong': ['MedTrack Shillong']},
+        'Mizoram': {'Aizawl': ['MedTrack Aizawl']},
+        'Nagaland': {'Kohima': ['MedTrack Kohima']},
+        'Odisha': {'Bhubaneswar': ['MedTrack Bhubaneswar']},
+        'Punjab': {'Chandigarh': ['MedTrack Chandigarh'], 'Ludhiana': ['MedTrack Ludhiana']},
+        'Rajasthan': {'Jaipur': ['MedTrack Jaipur'], 'Udaipur': ['MedTrack Udaipur']},
+        'Sikkim': {'Gangtok': ['MedTrack Gangtok']},
+        'Tamil Nadu': {'Chennai': ['MedTrack Chennai', 'MedTrack OMR'], 'Coimbatore': ['MedTrack Coimbatore']},
+        'Telangana': {'Hyderabad': ['MedTrack HITEC', 'MedTrack Secunderabad']},
+        'Tripura': {'Agartala': ['MedTrack Agartala']},
+        'Uttar Pradesh': {'Lucknow': ['MedTrack Lucknow'], 'Noida': ['MedTrack Noida'], 'Varanasi': ['MedTrack Varanasi']},
+        'Uttarakhand': {'Dehradun': ['MedTrack Dehradun']},
+        'West Bengal': {'Kolkata': ['MedTrack Kolkata', 'MedTrack Salt Lake']},
+        'Delhi': {'New Delhi': ['MedTrack AIIMS Link', 'MedTrack North']},
+        'Jammu and Kashmir': {'Srinagar': ['MedTrack Srinagar']},
+        'Ladakh': {'Leh': ['MedTrack Leh']},
+        'Puducherry': {'Puducherry': ['MedTrack Pondicherry']},
+        'Andaman and Nicobar Islands': {'Port Blair': ['MedTrack Port Blair']},
+        'Chandigarh': {'Chandigarh': ['MedTrack Chandigarh City']},
+        'Dadra and Nagar Haveli and Daman and Diu': {'Daman': ['MedTrack Daman']},
+        'Lakshadweep': {'Kavaratti': ['MedTrack Kavaratti']}
     }
 
     doctors = get_all_doctors()
