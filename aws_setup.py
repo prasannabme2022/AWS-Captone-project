@@ -879,7 +879,7 @@ def patient_dashboard():
         return redirect(url_for('login'))
     
     appointments = get_patient_appointments(session['user_id'])
-    return render_template('patient_dashboard.html', appointments=appointments)
+    return render_template('patient/dashboard.html', appointments=appointments)
 
 @app.route('/doctor_dashboard')
 def doctor_dashboard():
