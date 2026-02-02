@@ -845,6 +845,32 @@ def admin_dashboard():
                          dept_load={'Cardiology': 20},
                          pending_donations=[])
 
+@app.route('/admin/doctors')
+def admin_doctors():
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    doctors = get_all_doctors()
+    return render_template('admin/doctors_list.html', doctors=doctors)
+
+@app.route('/admin/patients')
+def admin_patients():
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    return render_template('admin/patients_list.html', patients=[])
+
+@app.route('/admin/appointments')
+def admin_appointments():
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    return render_template('admin/appointments_list.html', appointments=[])
+
+@app.route('/admin/records')
+def admin_records():
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    return render_template('admin/records_list.html', item_counts={})
+
+@app.route('/admin/invoices')
+def admin_invoices():
+    if session.get('role') != 'admin': return redirect(url_for('login'))
+    return render_template('admin/invoices_list.html', invoices=[])
+
 @app.route('/patient_dashboard')
 def patient_dashboard():
     if 'user_id' not in session or session.get('role') != 'patient':
