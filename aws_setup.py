@@ -707,9 +707,36 @@ def get_mood_history(patient_email):
 
 def get_chatbot_response(patient_email, message):
     """
-    AI Chatbot response generator
-    This is a placeholder - integrate with your ML model or external AI API
+    AI Chatbot response generator using AWS Bedrock (Claude)
     """
+    # 1. Try Bedrock AI
+    try:
+        import json
+        bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+        
+        prompt_data = f"\n\nHuman: You are a helpful medical assistant for MedTrack. Answer friendly and concisely.\nUser Question: {message}\n\nAssistant:"
+        
+        body = json.dumps({
+            "prompt": prompt_data,
+            "max_tokens_to_sample": 300,
+            "temperature": 0.5,
+            "top_p": 0.9,
+        })
+        
+        response = bedrock.invoke_model(
+            body=body,
+            modelId='anthropic.claude-v2',
+            accept='application/json',
+            contentType='application/json'
+        )
+        
+        response_body = json.loads(response.get('body').read())
+        return response_body.get('completion', '').strip()
+        
+    except Exception as e:
+        logger.warning(f"Bedrock AI unavailable ({e}), falling back to rules.")
+
+    # 2. Rule-based Fallback
     message = message.lower()
     
     if 'appointment' in message or 'book' in message:
