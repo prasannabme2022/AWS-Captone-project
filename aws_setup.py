@@ -916,9 +916,11 @@ def doctor_dashboard():
     appointments = get_doctor_appointments(session['user_id'])
     
     # Calculate stats
-    total_patients = len(set(a['patient_id'] for a in appointments))
     today_str = datetime.now().strftime('%Y-%m-%d')
     today_appointments = [a for a in appointments if a.get('appointment_date', '').startswith(today_str)]
+    
+    # Calculate stats
+    total_patients = len(set(a.get('patient_email') for a in appointments if a.get('patient_email')))
     
     stats = {
         'total_patients': total_patients,
@@ -932,8 +934,8 @@ def doctor_dashboard():
         # Just pick the first as next for demo
         first_ppt = appointments[0]
         next_patient = {
-            'name': first_ppt['patient_id'], # Using ID as name if name not available in appointment
-            'id': first_ppt['patient_id'],
+            'name': first_ppt.get('patient_email', 'Unknown'),
+            'id': first_ppt.get('patient_email', 'Unknown'),
             'dob': '1990-01-01'
         }
         
