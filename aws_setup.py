@@ -788,7 +788,7 @@ def login():
             if email == 'admin@medtrack.com' and password == 'admin123':
                 session['user_id'] = 'admin'
                 session['role'] = 'admin'
-                session['name'] = 'Administrator'
+                session['user_name'] = 'Administrator'
                 flash('Welcome, Administrator!', 'success')
                 return redirect(url_for('admin_dashboard'))
 
@@ -802,7 +802,7 @@ def login():
                 if is_valid:
                     session['user_id'] = email
                     session['role'] = 'patient'
-                    session['name'] = patient['name']
+                    session['user_name'] = patient['name']
                     
                     flash(f"Welcome back, {patient['name']}!", 'success')
                     return redirect(url_for('patient_dashboard'))
@@ -817,7 +817,7 @@ def login():
                 if is_valid:
                     session['user_id'] = email
                     session['role'] = 'doctor'
-                    session['name'] = doctor['name']
+                    session['user_name'] = doctor['name']
                     
                     flash(f"Welcome back, Dr. {doctor['name']}!", 'success')
                     return redirect(url_for('doctor_dashboard'))
@@ -913,7 +913,8 @@ def doctor_dashboard():
     
     # Calculate stats
     total_patients = len(set(a['patient_id'] for a in appointments))
-    today_appointments = [a for a in appointments if a.get('date') == datetime.now().strftime('%Y-%m-%d')] # Basic check, might need better date parsing
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    today_appointments = [a for a in appointments if a.get('appointment_date', '').startswith(today_str)]
     
     stats = {
         'total_patients': total_patients,
