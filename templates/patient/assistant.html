@@ -3,23 +3,10 @@
 {% block content %}
 <div style="max-width: 1000px; margin: 0 auto;">
     <h2 class="text-gradient" style="margin-bottom: 0.5rem;">AI Health Companion</h2>
-    <p style="color: #6b7280; margin-bottom: 2rem;">Your personal medical assistant and document analyst.</p>
+    <p style="color: #6b7280; margin-bottom: 2rem;">Your personal medical assistant.</p>
 
-    <!-- Tabs -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb;">
-        <button onclick="switchTab('chat')" id="tab-chat" class="tab-btn active"
-            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary); cursor: pointer;">
-            <i class="fas fa-comments"></i> Health Chat
-        </button>
-        <button onclick="switchTab('analyze')" id="tab-analyze" class="tab-btn"
-            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer;">
-            <i class="fas fa-file-medical-alt"></i> Report Analysis
-        </button>
-    </div>
-
-    <!-- Chat Tab -->
-    <div id="view-chat" class="glass-panel"
-        style="display: block; height: 600px; display: flex; flex-direction: column; padding: 0;">
+    <!-- Chat Interface -->
+    <div class="glass-panel" style="height: 600px; display: flex; flex-direction: column; padding: 0;">
         <div id="chat-history"
             style="flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;">
             <!-- Welcome Message -->
@@ -43,79 +30,9 @@
             </form>
         </div>
     </div>
-
-    <!-- Analysis Tab -->
-    <div id="view-analyze" style="display: none;">
-        <div class="glass-panel" style="padding: 2rem;">
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <i class="fas fa-microscope" style="font-size: 3rem; color: var(--secondary); margin-bottom: 1rem;"></i>
-                <h3>Upload Medical Report</h3>
-                <p style="color: #6b7280;">Upload X-Rays, Lab Reports, or Prescriptions for instant AI analysis.</p>
-            </div>
-
-            <form action="{{ url_for('analyze_report') }}" method="POST" enctype="multipart/form-data"
-                style="max-width: 500px; margin: 0 auto; border: 2px dashed #e5e7eb; padding: 2rem; border-radius: 12px; text-align: center;">
-
-                <input type="file" name="file" id="file-upload" class="form-input" accept=".jpg,.jpeg,.png,.pdf"
-                    required style="margin-bottom: 1.5rem;">
-
-                <div class="form-group">
-                    <label class="form-label" style="text-align: left;">Additional Context (Symptoms)</label>
-                    <textarea name="symptoms" class="form-input" rows="3"
-                        placeholder="e.g. Having fever since yesterday..."></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-magic"></i> Analyze Document
-                </button>
-            </form>
-
-            {% if analysis_result %}
-            <div style="margin-top: 3rem; animation: fadeIn 0.5s;">
-                <h3 style="margin-bottom: 1rem;">Analysis Results</h3>
-                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <span style="font-weight: bold; color: #15803d;">Prediction: {{ analysis_result.prediction
-                            }}</span>
-                        <span
-                            style="background: white; padding: 0.2rem 0.8rem; border-radius: 99px; font-size: 0.9rem; color: #166534; border: 1px solid #bbf7d0;">
-                            Confidence: {{ analysis_result.confidence }}
-                        </span>
-                    </div>
-                    <p style="color: #14532d; line-height: 1.6;">{{ analysis_result.summary }}</p>
-
-                    <div
-                        style="margin-top: 1rem; border-top: 1px solid #bbf7d0; padding-top: 1rem; font-size: 0.9rem; color: #166534;">
-                        <strong>Key Findings:</strong><br>
-                        • {{ analysis_result.modality_analysis.text_features }}<br>
-                        • {{ analysis_result.modality_analysis.image_features }}
-                    </div>
-                </div>
-                <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 1rem; text-align: center;">
-                    * AI analysis is for reference only. Please consult a doctor for official diagnosis.
-                </p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </div>
 
 <script>
-    function switchTab(tab) {
-        // Update Buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.style.color = '#6b7280';
-            btn.style.borderBottomColor = 'transparent';
-        });
-        const activeBtn = document.getElementById(`tab-${tab}`);
-        activeBtn.style.color = 'var(--primary)';
-        activeBtn.style.borderBottomColor = 'var(--primary)';
-
-        // Update Views
-        document.getElementById('view-chat').style.display = tab === 'chat' ? 'flex' : 'none';
-        document.getElementById('view-analyze').style.display = tab === 'analyze' ? 'block' : 'none';
-    }
-
     async function sendAiMessage(e) {
         e.preventDefault();
         const input = document.getElementById('ai-input');
