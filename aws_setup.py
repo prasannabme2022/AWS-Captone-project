@@ -974,8 +974,22 @@ def doctor_dashboard():
 @app.route('/doctor/patients')
 def doctor_patients_list():
     if session.get('role') != 'doctor': return redirect(url_for('login'))
-    # In a real app we would filter by doctor, but for this demo showing all is acceptable or empty list
-    return render_template('doctor/patients_list.html', patients=[])
+    
+    # Fetch appointments to derive patient list
+    appointments = get_doctor_appointments(session['user_id'])
+    
+    # Deduplicate patients
+    patient_map = {}
+    for appt in appointments:
+        pid = appt.get('patient_id')
+        if pid and pid != 'N/A' and pid not in patient_map:
+            patient_map[pid] = {
+                'name': appt.get('patient_name', 'Unknown'),
+                'id': pid
+            }
+            
+    patients = list(patient_map.values())
+    return render_template('doctor/patients_list.html', patients=patients)
 
 @app.route('/doctor/appointments')
 def doctor_appointments_list():
