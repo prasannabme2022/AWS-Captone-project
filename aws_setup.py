@@ -986,7 +986,8 @@ def doctor_view_vault(patient_id):
             # In a real app, upload to S3 here. For demo, we store metadata.
             file_url = f"https://s3.amazonaws.com/medtrack-vault/{filename}" 
             
-            if add_to_medical_vault(patient_id, filename, file_url, description):
+            # Args: patient_email, file_name, file_type, file_path, analysis
+            if add_to_medical_vault(patient_id, filename, 'Report', file_url, description):
                 flash('File uploaded successfully (metadata only for demo)', 'success')
             else:
                 flash('Error uploading file', 'error')

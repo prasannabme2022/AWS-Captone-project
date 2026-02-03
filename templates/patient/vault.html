@@ -63,77 +63,82 @@
 {% else %}
 <div class="vault-grid" id="recordsGrid">
     {% for rec in records %}
-    <div class="glass-card record-item" data-name="{{ rec.filename }}" data-category="{{ rec.category }}"
+    <div class="glass-card record-item" data-name="{{ rec.file_name }}" data-category="{{ rec.category }}"
         data-date="{{ rec.date }}">
         <div class="report-icon" style="position: relative;">
-            <i class="far {{ 'fa-file-prescription' if rec.category == 'Prescription' else 'fa-file-alt' }}"></i>
-            <span
-                style="position: absolute; top: -5px; right: -5px; background: var(--secondary); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;">{{
-                rec.category }}</span>
+            <div class="glass-panel record-item" data-category="{{ rec.file_type }}" style="padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="file-icon pdf">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0;">{{ rec.file_name }}</h4>
+                            <!-- <small style="color: #9ca3af;">{{ rec.uploaded_at }}</small> -->
+                        </div>
+                    </div>
+                    <!-- <span class="badge badge-blue">{{ rec.file_type }}</span> -->
+                </div>
+
+                <div
+                    style="background: #f8fafc; padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #4b5563; margin-bottom: 1rem;">
+                    <strong><i class="fas fa-robot" style="color: var(--secondary);"></i> AI Insight:</strong><br>
+                    {{ rec.analysis }}
+                </div>
+
+                <div style="margin-top: 1rem; text-align: right;">
+                    {% if rec.file_name %}
+                    <a href="{{ url_for('uploaded_file', filename=rec.file_name) }}" target="_blank" class="btn"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #e0f2fe; color: #0369a1;">
+                        <i class="fas fa-eye"></i> View File
+                    </a>
+                    {% else %}
+                    <span class="btn"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #f3f4f6; color: #9ca3af; cursor: not-allowed;">
+                        <i class="fas fa-eye-slash"></i> No File
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        <h4 style="margin: 0 0 0.5rem 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-            title="{{ rec.filename }}">{{ rec.filename }}</h4>
-        <small style="color: #9ca3af; display: block; margin-bottom: 1rem;">{{ rec.date }}</small>
+        {% endif %}
 
-        <div
-            style="background: rgba(255,255,255,0.6); border-radius: 8px; padding: 1rem; font-size: 0.9rem; line-height: 1.5; color: #374151;">
-            <strong><i class="fas fa-robot" style="color: var(--secondary);"></i> AI Insight:</strong><br>
-            {{ rec.ai_summary }}
-        </div>
+        <script>
+            function filterRecords() {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const category = document.getElementById('categoryFilter').value;
+                const cards = document.querySelectorAll('.record-item');
 
-        <div style="margin-top: 1rem; text-align: right;">
-            {% if rec.filename %}
-            <a href="{{ url_for('uploaded_file', filename=rec.filename) }}" target="_blank" class="btn"
-                style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #e0f2fe; color: #0369a1;">
-                <i class="fas fa-eye"></i> View File
-            </a>
-            {% else %}
-            <span class="btn"
-                style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #f3f4f6; color: #9ca3af; cursor: not-allowed;">
-                <i class="fas fa-eye-slash"></i> No File
-            </span>
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+                cards.forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    const cat = card.getAttribute('data-category');
 
-<script>
-    function filterRecords() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const category = document.getElementById('categoryFilter').value;
-        const cards = document.querySelectorAll('.record-item');
+                    let matchesSearch = name.includes(search);
+                    let matchesCat = category === 'all' || cat === category;
 
-        cards.forEach(card => {
-            const name = card.getAttribute('data-name').toLowerCase();
-            const cat = card.getAttribute('data-category');
+                    card.style.display = (matchesSearch && matchesCat) ? 'block' : 'none';
+                });
+            }
 
-            let matchesSearch = name.includes(search);
-            let matchesCat = category === 'all' || cat === category;
+            function sortRecords() {
+                const order = document.getElementById('sortOrder').value;
+                const grid = document.getElementById('recordsGrid');
+                const cards = Array.from(document.querySelectorAll('.record-item'));
 
-            card.style.display = (matchesSearch && matchesCat) ? 'block' : 'none';
-        });
-    }
+                cards.sort((a, b) => {
+                    const dateA = a.getAttribute('data-date');
+                    const dateB = b.getAttribute('data-date');
+                    const nameA = a.getAttribute('data-name').toLowerCase();
+                    const nameB = b.getAttribute('data-name').toLowerCase();
 
-    function sortRecords() {
-        const order = document.getElementById('sortOrder').value;
-        const grid = document.getElementById('recordsGrid');
-        const cards = Array.from(document.querySelectorAll('.record-item'));
+                    if (order === 'newest') return dateB.localeCompare(dateA);
+                    if (order === 'oldest') return dateA.localeCompare(dateB);
+                    if (order === 'az') return nameA.localeCompare(nameB);
+                    if (order === 'za') return nameB.localeCompare(nameA);
+                });
 
-        cards.sort((a, b) => {
-            const dateA = a.getAttribute('data-date');
-            const dateB = b.getAttribute('data-date');
-            const nameA = a.getAttribute('data-name').toLowerCase();
-            const nameB = b.getAttribute('data-name').toLowerCase();
-
-            if (order === 'newest') return dateB.localeCompare(dateA);
-            if (order === 'oldest') return dateA.localeCompare(dateB);
-            if (order === 'az') return nameA.localeCompare(nameB);
-            if (order === 'za') return nameB.localeCompare(nameA);
-        });
-
-        cards.forEach(card => grid.appendChild(card));
-    }
-</script>
-{% endblock %}
+                cards.forEach(card => grid.appendChild(card));
+            }
+        </script>
+        {% endblock %}
