@@ -1312,6 +1312,47 @@ def api_chat_get():
     
     return jsonify({'status': 'success', 'messages': messages})
 
+# ============================================
+# AI ASSISTANT & MOOD APIs
+# ============================================
+
+@app.route('/api/ai/chat', methods=['POST'])
+def api_ai_chat():
+    if 'user_id' not in session: return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    message = data.get('message', '')
+    
+    # Call Bedrock or Fake it for Demo if Bedrock fails
+    try:
+        reply = get_chatbot_response(session['user_id'], message)
+    except Exception as e:
+        reply = "I am currently unable to connect to the AI brain. Please try again later."
+        
+    return jsonify({'reply': reply})
+
+@app.route('/api/mood/log', methods=['POST'])
+def api_mood_log():
+    if 'user_id' not in session: return jsonify({'error': 'Unauthorized'}), 401
+    data = request.get_json()
+    # In real app: save to DynamoDB. For demo: Just success
+    return jsonify({'status': 'success'})
+
+@app.route('/api/mood/history')
+def api_mood_history():
+    # Mock data for chart
+    import random
+    history = [
+        {'date': 'Mon', 'score': random.randint(3, 5)},
+        {'date': 'Tue', 'score': random.randint(2, 5)},
+        {'date': 'Wed', 'score': random.randint(3, 5)},
+        {'date': 'Thu', 'score': random.randint(4, 5)},
+        {'date': 'Fri', 'score': random.randint(3, 5)},
+        {'date': 'Sat', 'score': random.randint(4, 5)},
+        {'date': 'Sun', 'score': random.randint(3, 5)},
+    ]
+    return jsonify({'history': history})
+
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
     print("Initializing DynamoDB Tables...")
