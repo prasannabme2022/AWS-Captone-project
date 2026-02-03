@@ -1230,6 +1230,74 @@ def invoices():
     patient_invoices = get_patient_invoices(session['user_id'])
     return render_template('patient/invoices.html', invoices=patient_invoices)
 
+# ============================================
+# CHAT API ROUTES (Added for 24/7 Support)
+# ============================================
+
+@app.route('/api/chat/send', methods=['POST'])
+def api_chat_send():
+    if 'user_id' not in session: return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    msg_text = data.get('message')
+    dept = data.get('dept', 'General')
+    
+    if not msg_text: return jsonify({'status': 'error', 'message': 'Empty message'}), 400
+
+    message_id = generate_id("MSG")
+    chat_item = {
+        'message_id': message_id,
+        'id': message_id, # Alias for frontend
+        'sender_email': session['user_id'],
+        'sender': session.get('user_name', 'Patient'),
+        'dept': dept,
+        'message': msg_text,
+        'reply': None,
+        'created_at': get_current_datetime(),
+        'time': datetime.now().strftime('%H:%M'),
+        'role': session.get('role', 'patient')
+    }
+    
+    # Use the table directly to support custom schema (dept, reply)
+    chat_messages_table.put_item(Item=chat_item)
+    return jsonify({'status': 'success'})
+
+@app.route('/api/doctor/reply', methods=['POST'])
+def api_doctor_reply():
+    if session.get('role') != 'doctor': return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    chat_id = data.get('chat_id')
+    reply_text = data.get('reply')
+    
+    if not chat_id or not reply_text: return jsonify({'status': 'error', 'message': 'Missing data'}), 400
+    
+    # Update logic
+    chat_messages_table.update_item(
+        Key={'message_id': chat_id},
+        UpdateExpression="set reply = :r",
+        ExpressionAttributeValues={':r': reply_text}
+    )
+    return jsonify({'status': 'success'})
+
+@app.route('/api/chat/get')
+def api_chat_get():
+    dept = request.args.get('dept')
+    
+    # Scan all messages (Demo efficiency)
+    response = chat_messages_table.scan()
+    items = response.get('Items', [])
+    messages = [deserialize_item(i) for i in items]
+    
+    # Filter by dept if provided
+    if dept and dept != 'All':
+        messages = [m for m in messages if m.get('dept') == dept]
+        
+    # Sort by time
+    messages.sort(key=lambda x: x.get('created_at', ''))
+    
+    return jsonify({'status': 'success', 'messages': messages})
+
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
     print("Initializing DynamoDB Tables...")
