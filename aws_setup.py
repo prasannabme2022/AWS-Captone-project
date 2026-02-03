@@ -917,7 +917,7 @@ def doctor_dashboard():
     
     # Calculate stats
     today_str = datetime.now().strftime('%Y-%m-%d')
-    today_appointments = [a for a in appointments if a.get('appointment_date', '').startswith(today_str)]
+    today_appointments = [a for a in appointments if (a.get('appointment_date') or '').startswith(today_str)]
     
     # Calculate stats
     total_patients = len(set(a.get('patient_email') for a in appointments if a.get('patient_email')))
