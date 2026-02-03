@@ -1236,40 +1236,6 @@ def doctor_view_vault(patient_id):
     records = get_patient_vault(patient_id)
     return render_template('patient/vault.html', records=records, patient_id=patient_id)
 
-@app.route('/appointment/advance/<appt_id>')
-def advance_status(appt_id):
-    if session.get('role') != 'doctor':
-        flash('Unauthorized', 'error')
-        return redirect(url_for('login'))
-    
-    # Get current appointment
-    appt = get_appointment(appt_id)
-    if not appt:
-        flash('Appointment not found', 'error')
-        return redirect(url_for('doctor_dashboard'))
-    
-    current_status = appt.get('status', 'BOOKED')
-    next_status = current_status
-    
-    # State Machine
-    if current_status == 'BOOKED':
-        next_status = 'CHECKED-IN'
-    elif current_status == 'CHECKED-IN':
-        next_status = 'CONSULTING'
-    elif current_status == 'CONSULTING':
-        next_status = 'COMPLETED'
-    
-    if next_status != current_status:
-        update_appointment_status(appt_id, next_status)
-        flash(f'Appointment status updated to {next_status}', 'success')
-    else:
-        flash('Appointment is already completed', 'info')
-        
-    return redirect(url_for('doctor_dashboard'))
-    if session.get('role') != 'doctor': return redirect(url_for('login'))
-    appointments = get_doctor_appointments(session['user_id'])
-    return render_template('doctor/appointments_list.html', appointments=appointments)
-
 @app.route('/book_appointment', methods=['GET', 'POST'])
 def book_appointment():
     if 'user_id' not in session or session.get('role') != 'patient':
