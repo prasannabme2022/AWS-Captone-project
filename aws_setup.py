@@ -372,15 +372,22 @@ def update_appointment_status(appointment_id, status, diagnosis='', prescription
         
         update_expr = "SET "
         expr_values = {}
+        expr_names = {}
+        
         for key, value in update_data.items():
-            update_expr += f"{key} = :{key}, "
+            # Use alias for reserved keywords (status is reserved in DynamoDB)
+            alias = f"#{key}"
+            update_expr += f"{alias} = :{key}, "
+            expr_names[alias] = key
             expr_values[f":{key}"] = value
+            
         update_expr = update_expr.rstrip(', ')
         
         appointments_table.update_item(
             Key={'appointment_id': appointment_id},
             UpdateExpression=update_expr,
-            ExpressionAttributeValues=expr_values
+            ExpressionAttributeValues=expr_values,
+            ExpressionAttributeNames=expr_names
         )
         
         # Send notification
@@ -959,12 +966,32 @@ def doctor_appointments_list():
     appointments = get_doctor_appointments(session['user_id'])
     return render_template('doctor/appointments_list.html', appointments=appointments)
 
-@app.route('/doctor/vault/<patient_id>')
+@app.route('/doctor/vault/<patient_id>', methods=['GET', 'POST'])
 def doctor_view_vault(patient_id):
     if session.get('role') != 'doctor':
         flash('Unauthorized', 'error')
         return redirect(url_for('login'))
         
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'error')
+            return redirect(request.url)
+        file = request.files['file']
+        description = request.form.get('description', 'Medical Report')
+        if file.filename == '':
+            flash('No selected file', 'error')
+            return redirect(request.url)
+        if file:
+            filename = secure_filename(file.filename)
+            # In a real app, upload to S3 here. For demo, we store metadata.
+            file_url = f"https://s3.amazonaws.com/medtrack-vault/{filename}" 
+            
+            if add_to_medical_vault(patient_id, filename, file_url, description):
+                flash('File uploaded successfully (metadata only for demo)', 'success')
+            else:
+                flash('Error uploading file', 'error')
+            return redirect(url_for('doctor_view_vault', patient_id=patient_id))
+
     records = get_patient_vault(patient_id)
     return render_template('patient/vault.html', records=records, patient_id=patient_id)
 
