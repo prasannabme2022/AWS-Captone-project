@@ -15,10 +15,6 @@
             style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer;">
             <i class="fas fa-file-medical-alt"></i> Report Analysis
         </button>
-        <button onclick="switchTab('wellness')" id="tab-wellness" class="tab-btn"
-            style="padding: 1rem 1.5rem; background: none; border: none; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; cursor: pointer;">
-            <i class="fas fa-smile"></i> Mental Wellness
-        </button>
     </div>
 
     <!-- Chat Tab -->
@@ -104,107 +100,7 @@
     </div>
 </div>
 
-<!-- Wellness Tab -->
-<div id="view-wellness" style="display: none;">
-    <div class="glass-panel" style="padding: 2rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <!-- Mood Logger -->
-            <div>
-                <h3 style="margin-top: 0;">How are you feeling today?</h3>
-                <p style="color: #6b7280; margin-bottom: 1.5rem;">Track your daily mood to visualize your well-being
-                    journey.</p>
-
-                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                    <button onclick="logMood(1)" class="mood-btn"
-                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
-                        title="Awful">😫</button>
-                    <button onclick="logMood(2)" class="mood-btn"
-                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
-                        title="Bad">😔</button>
-                    <button onclick="logMood(3)" class="mood-btn"
-                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
-                        title="Okay">😐</button>
-                    <button onclick="logMood(4)" class="mood-btn"
-                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
-                        title="Good">🙂</button>
-                    <button onclick="logMood(5)" class="mood-btn"
-                        style="font-size: 2rem; background: none; border: none; cursor: pointer; transition: transform 0.2s;"
-                        title="Great">😄</button>
-                </div>
-
-                <div class="form-group">
-                    <input type="text" id="mood-note" class="form-input" placeholder="Add a note (optional)...">
-                </div>
-            </div>
-
-            <!-- Chart -->
-            <div>
-                <h3 style="margin-top: 0;">Mood Trends (Last 7 Days)</h3>
-                <div style="height: 250px;">
-                    <canvas id="moodChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let moodChartInstance = null;
-
-    async function loadMoodHistory() {
-        const response = await fetch('/api/mood/history');
-        const data = await response.json();
-
-        const labels = data.history.map(h => h.date);
-        const scores = data.history.map(h => h.score);
-
-        const ctx = document.getElementById('moodChart').getContext('2d');
-
-        if (moodChartInstance) {
-            moodChartInstance.destroy();
-        }
-
-        moodChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Mood Score',
-                    data: scores,
-                    borderColor: '#0072ff',
-                    backgroundColor: 'rgba(0, 114, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        min: 1,
-                        max: 5,
-                        ticks: { stepSize: 1 }
-                    }
-                }
-            }
-        });
-    }
-
-    async function logMood(score) {
-        const note = document.getElementById('mood-note').value;
-        await fetch('/api/mood/log', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ score, note })
-        });
-        alert('Mood logged successfully!');
-        document.getElementById('mood-note').value = '';
-        loadMoodHistory();
-    }
-
     function switchTab(tab) {
         // Update Buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -218,11 +114,6 @@
         // Update Views
         document.getElementById('view-chat').style.display = tab === 'chat' ? 'flex' : 'none';
         document.getElementById('view-analyze').style.display = tab === 'analyze' ? 'block' : 'none';
-        document.getElementById('view-wellness').style.display = tab === 'wellness' ? 'block' : 'none';
-
-        if (tab === 'wellness') {
-            loadMoodHistory();
-        }
     }
 
     async function sendAiMessage(e) {

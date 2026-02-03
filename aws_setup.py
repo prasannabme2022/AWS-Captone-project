@@ -1331,27 +1331,7 @@ def api_ai_chat():
         
     return jsonify({'reply': reply})
 
-@app.route('/api/mood/log', methods=['POST'])
-def api_mood_log():
-    if 'user_id' not in session: return jsonify({'error': 'Unauthorized'}), 401
-    data = request.get_json()
-    # In real app: save to DynamoDB. For demo: Just success
-    return jsonify({'status': 'success'})
 
-@app.route('/api/mood/history')
-def api_mood_history():
-    # Mock data for chart
-    import random
-    history = [
-        {'date': 'Mon', 'score': random.randint(3, 5)},
-        {'date': 'Tue', 'score': random.randint(2, 5)},
-        {'date': 'Wed', 'score': random.randint(3, 5)},
-        {'date': 'Thu', 'score': random.randint(4, 5)},
-        {'date': 'Fri', 'score': random.randint(3, 5)},
-        {'date': 'Sat', 'score': random.randint(4, 5)},
-        {'date': 'Sun', 'score': random.randint(3, 5)},
-    ]
-    return jsonify({'history': history})
 
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
