@@ -1146,7 +1146,17 @@ def patient_vault():
         return redirect(url_for('login'))
     
     vault_items = get_patient_vault(session['user_id'])
-    return render_template('patient/vault.html', vault_items=vault_items)
+    return render_template('patient/vault.html', records=vault_items)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    # In a real app, this would serve from S3 or local storage
+    # For demo, we might not have the file, but we need the route to exist
+    import os
+    upload_folder = os.path.join(os.getcwd(), 'uploads')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    return send_from_directory(upload_folder, filename)
 
 @app.route('/upload_medical_file', methods=['POST'])
 def upload_medical_file():
