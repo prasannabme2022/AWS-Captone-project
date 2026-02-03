@@ -1254,6 +1254,15 @@ def patient_vault():
     vault_items = get_patient_vault(session['user_id'])
     return render_template('patient/vault.html', records=vault_items)
 
+@app.route('/patient_invoices')
+def patient_invoices():
+    if 'user_id' not in session or session.get('role') != 'patient':
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    patient_invoices_list = get_patient_invoices(session['user_id'])
+    return render_template('patient/invoices.html', invoices=patient_invoices_list)
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     # In a real app, this would serve from S3 or local storage
