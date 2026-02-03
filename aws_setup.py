@@ -983,12 +983,20 @@ def doctor_view_vault(patient_id):
             return redirect(request.url)
         if file:
             filename = secure_filename(file.filename)
+            
+            # Save file locally for demo viewing
+            import os
+            upload_folder = os.path.join(os.getcwd(), 'uploads')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            file.save(os.path.join(upload_folder, filename))
+            
             # In a real app, upload to S3 here. For demo, we store metadata.
-            file_url = f"https://s3.amazonaws.com/medtrack-vault/{filename}" 
+            file_url = f"https://s3.amazonaws.com/medtrack-vault/{filename}" # Keep mock URL for consistency
             
             # Args: patient_email, file_name, file_type, file_path, analysis
             if add_to_medical_vault(patient_id, filename, 'Report', file_url, description):
-                flash('File uploaded successfully (metadata only for demo)', 'success')
+                flash('File uploaded successfully', 'success')
             else:
                 flash('Error uploading file', 'error')
             return redirect(url_for('doctor_view_vault', patient_id=patient_id))
