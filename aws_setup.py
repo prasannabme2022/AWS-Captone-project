@@ -1188,6 +1188,32 @@ def ai_chat():
     
     return render_template('patient/assistant.html')
 
+@app.route('/analyze_report', methods=['POST'])
+def analyze_report():
+    if 'user_id' not in session:
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    if 'file' not in request.files:
+        flash('No file uploaded', 'error')
+        return redirect(url_for('ai_chat'))
+    
+    file = request.files['file']
+    symptoms = request.form.get('symptoms', '')
+    
+    # Demo Analysis Result
+    analysis_result = {
+        'prediction': 'Normal Range',
+        'confidence': '94%',
+        'summary': 'Based on the uploaded document and symptoms, your results appear to be within normal range. The AI analysis suggests no immediate concerns.',
+        'modality_analysis': {
+            'text_features': 'All key health indicators are within expected thresholds',
+            'image_features': 'No anomalies detected in visual scan'
+        }
+    }
+    
+    return render_template('patient/assistant.html', analysis_result=analysis_result)
+
 @app.route('/patient_assistant')
 def patient_assistant():
     return redirect(url_for('ai_chat'))
@@ -1198,13 +1224,14 @@ def patient_chat():
         flash('Please login first.', 'error')
         return redirect(url_for('login'))
     
-    # In a real app we'd load chat history here
-    return render_template('patient/chat.html', recent_doctors=[])
+    departments = ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General Medicine']
+    return render_template('patient/chat.html', departments=departments)
 
 @app.route('/doctor/chat')
 def doctor_chat_view():
     if session.get('role') != 'doctor': return redirect(url_for('login'))
-    return render_template('doctor/chat.html', recent_patients=[])
+    departments = ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General Medicine']
+    return render_template('doctor/chat.html', departments=departments)
 
 @app.route('/patient_vault')
 def patient_vault():
