@@ -138,11 +138,11 @@ def get_current_datetime():
     return datetime.now().isoformat()
 
 # ============================================
-# SNS NOTIFICATION SERVICE
+# SNS NOTIFICATION SERVICE (Email & SMS)
 # ============================================
 
 def send_notification(message, subject="MedTrack Notification"):
-    """Send SNS notification"""
+    """Send SNS notification to topic subscribers"""
     try:
         response = sns_client.publish(
             TopicArn=SNS_TOPIC_ARN,
@@ -154,6 +154,94 @@ def send_notification(message, subject="MedTrack Notification"):
     except Exception as e:
         logger.error(f"Failed to send SNS notification: {e}")
         return False
+
+def send_email_notification(email, subject, message):
+    """Send email notification via SNS"""
+    try:
+        response = sns_client.publish(
+            TopicArn=SNS_TOPIC_ARN,
+            Message=message,
+            Subject=subject,
+            MessageAttributes={
+                'email': {
+                    'DataType': 'String',
+                    'StringValue': email
+                }
+            }
+        )
+        logger.info(f"Email notification sent to {email}: {response['MessageId']}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email to {email}: {e}")
+        return False
+
+def send_sms_notification(phone_number, message):
+    """Send SMS notification via SNS (max 160 characters)"""
+    try:
+        # Format phone number (must be in E.164 format: +919876543210)
+        if not phone_number.startswith('+'):
+            phone_number = '+91' + phone_number.lstrip('0')
+        
+        response = sns_client.publish(
+            PhoneNumber=phone_number,
+            Message=message[:160],  # SMS limit
+            MessageAttributes={
+                'AWS.SNS.SMS.SMSType': {
+                    'DataType': 'String',
+                    'StringValue': 'Transactional'  # For important messages
+                }
+            }
+        )
+        logger.info(f"SMS sent to {phone_number}: {response['MessageId']}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send SMS to {phone_number}: {e}")
+        return False
+
+def notify_appointment_created(patient_email, doctor_name, appointment_date, patient_phone=None):
+    """Send appointment confirmation via email and SMS"""
+    subject = "MedTrack - Appointment Confirmed"
+    message = f"""
+Dear Patient,
+
+Your appointment has been successfully booked!
+
+Doctor: {doctor_name}
+Date & Time: {appointment_date}
+
+Please arrive 10 minutes early for check-in.
+
+Thank you for choosing MedTrack!
+    """.strip()
+    
+    # Send email
+    send_email_notification(patient_email, subject, message)
+    
+    # Send SMS if phone provided
+    if patient_phone:
+        sms_message = f"MedTrack: Appointment with Dr. {doctor_name} on {appointment_date}. Arrive 10 min early."
+        send_sms_notification(patient_phone, sms_message)
+
+def notify_appointment_status_change(patient_email, status, patient_phone=None):
+    """Notify patient of appointment status change"""
+    subject = f"MedTrack - Appointment {status}"
+    message = f"""
+Dear Patient,
+
+Your appointment status has been updated to: {status}
+
+Please check your dashboard for details.
+
+Thank you,
+MedTrack Team
+    """.strip()
+    
+    send_email_notification(patient_email, subject, message)
+    
+    if patient_phone and status in ['CHECKED-IN', 'CONSULTING']:
+        sms_message = f"MedTrack: Your appointment is now {status}."
+        send_sms_notification(patient_phone, sms_message)
+
 
 # ============================================
 # PATIENT MANAGEMENT
