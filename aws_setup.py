@@ -682,22 +682,26 @@ def get_chatbot_response(patient_email, message):
     AI Chatbot response generator
     This is a placeholder - integrate with your ML model or external AI API
     """
-    # Simple rule-based responses (replace with actual AI model)
-    message_lower = message.lower()
+    message = message.lower()
     
-    responses = {
-        'fever': "I understand you have a fever. Please monitor your temperature. If it exceeds 102°F or persists for more than 3 days, consult a doctor immediately.",
-        'headache': "For headache, ensure you're well-hydrated and rested. If severe or persistent, please book an appointment with a doctor.",
-        'appointment': "You can book an appointment from the patient dashboard. Select your preferred doctor and date.",
-        'blood': "You can check blood bank availability in the Blood Bank section. We maintain stock of all blood groups.",
-        'help': "I'm here to help! You can ask me about symptoms, appointments, blood bank, or general health queries."
-    }
+    if 'appointment' in message or 'book' in message:
+        return "You can book an appointment by clicking on 'Book Now' in the sidebar. We have specialists available across various departments."
     
-    for keyword, response in responses.items():
-        if keyword in message_lower:
-            return response
+    elif 'headache' in message or 'fever' in message or 'pain' in message:
+        return "I'm sorry to hear that. Please track your symptoms in the dashboard and consult a doctor if it persists. Would you like to check available slots?"
     
-    return "I'm here to assist you. Please describe your symptoms or ask any health-related questions."
+    elif 'report' in message or 'result' in message:
+        return "You can view your medical reports in the 'Medical Vault' section. Ensure all your documents are securely uploaded there."
+    
+    elif 'hello' in message or 'hi' in message:
+        return "Hello! I am your MedTrack AI Assistant. How can I help you with your health journey today?"
+    
+    elif 'contact' in message or 'emergency' in message:
+        return "For emergencies, please use the SOS button in the sidebar or call 102 immediately."
+        
+    else:
+        return "I understand. I'm here to support your health journey. Could you please provide more details so I can assist you better?"
+
 
 # ============================================
 # FLASK ROUTES
