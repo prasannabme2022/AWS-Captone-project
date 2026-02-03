@@ -759,6 +759,18 @@ def get_chatbot_response(patient_email, message):
 
 
 # ============================================
+# FLASK CONTEXT PROCESSOR
+# ============================================
+
+@app.context_processor
+def inject_user_info():
+    """Inject user information into all templates"""
+    return {
+        'current_user': session.get('user_id', 'Guest'),
+        'current_role': session.get('role', None)
+    }
+
+# ============================================
 # FLASK ROUTES
 # ============================================
 
