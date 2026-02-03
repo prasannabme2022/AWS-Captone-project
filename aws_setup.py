@@ -425,12 +425,16 @@ def get_patient_appointments(patient_email):
         return []
 
 def get_doctor_appointments(doctor_email):
-    """Get all appointments for a doctor"""
+    """Get all appointments for a doctor (Demo: Returns ALL appointments)"""
     try:
-        response = appointments_table.scan(
-            FilterExpression='doctor_email = :email',
-            ExpressionAttributeValues={':email': doctor_email}
-        )
+        # DEMO MODE: Showing all appointments so you can see them regardless of login email
+        response = appointments_table.scan()
+        
+        # Original Filtered Logic (Commented out for demo fix)
+        # response = appointments_table.scan(
+        #     FilterExpression='doctor_email = :email',
+        #     ExpressionAttributeValues={':email': doctor_email}
+        # )
         appointments = [deserialize_item(item) for item in response.get('Items', [])]
         return sorted(appointments, key=lambda x: x.get('created_at', ''), reverse=True)
     except ClientError as e:
