@@ -235,8 +235,9 @@
                     {% for appt in appointments[:5] %}
                     <tr style="border-bottom: 1px solid #f9fafb;">
                         <td style="padding: 1rem 0;">
-                            <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_id }}</div>
-                            <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.time }}</div>
+                            <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_name }}</div>
+                            <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.patient_id }}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 2px;">{{ appt.time }}</div>
                         </td>
                         <td style="padding: 1rem 0;">
                             <span

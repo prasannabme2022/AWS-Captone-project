@@ -443,6 +443,23 @@ def get_doctor_appointments(doctor_email):
         #     ExpressionAttributeValues={':email': doctor_email}
         # )
         appointments = [deserialize_item(item) for item in response.get('Items', [])]
+        
+        # Enrich with patient details
+        for appt in appointments:
+            # Map time
+            date_val = appt.get('appointment_date')
+            appt['time'] = str(date_val).replace('T', ' ') if date_val else 'N/A'
+            
+            # Get Patient Details
+            p_email = appt.get('patient_email')
+            if p_email:
+                patient = get_patient(p_email)
+                appt['patient_name'] = patient.get('name', p_email) if patient else p_email
+                appt['patient_id'] = p_email # Template uses this
+            else:
+                 appt['patient_name'] = 'Unknown'
+                 appt['patient_id'] = 'N/A'
+
         return sorted(appointments, key=lambda x: x.get('created_at', ''), reverse=True)
     except ClientError as e:
         logger.error(f"Error getting doctor appointments: {e}")
