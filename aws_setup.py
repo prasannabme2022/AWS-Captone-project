@@ -1059,6 +1059,79 @@ def patient_dashboard():
     appointments = get_patient_appointments(session['user_id'])
     return render_template('patient/dashboard.html', appointments=appointments)
 
+@app.route('/advance_status/<appt_id>')
+def advance_status(appt_id):
+    """Advance appointment status and auto-generate invoice on completion"""
+    if session.get('role') != 'doctor':
+        flash('Unauthorized access', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        # Get current appointment
+        response = appointments_table.get_item(Key={'appointment_id': appt_id})
+        if 'Item' not in response:
+            flash('Appointment not found', 'error')
+            return redirect(url_for('doctor_dashboard'))
+        
+        appt = deserialize_item(response['Item'])
+        current_status = appt.get('status', 'BOOKED')
+        
+        # Define status progression
+        status_flow = {
+            'BOOKED': 'CHECKED-IN',
+            'CHECKED-IN': 'CONSULTING',
+            'CONSULTING': 'COMPLETED'
+        }
+        
+        new_status = status_flow.get(current_status)
+        
+        if new_status:
+            # Update status
+            appointments_table.update_item(
+                Key={'appointment_id': appt_id},
+                UpdateExpression='SET #s = :status_val',
+                ExpressionAttributeNames={'#s': 'status'},
+                ExpressionAttributeValues={':status_val': new_status}
+            )
+            
+            # If completing appointment, auto-generate invoice
+            if new_status == 'COMPLETED':
+                # Generate random consultation fee (₹500-₹2000)
+                import random
+                consultation_fee = random.randint(500, 2000)
+                
+                invoice_id = create_invoice(
+                    patient_email=appt.get('patient_id'),
+                    appointment_id=appt_id,
+                    amount=consultation_fee,
+                    description=f"Consultation with Dr. {session.get('user_name', 'Doctor')}"
+                )
+                
+                if invoice_id:
+                    flash(f'Appointment completed! Invoice {invoice_id} generated for ₹{consultation_fee}', 'success')
+                    
+                    # Notify patient
+                    notify_appointment_status_change(
+                        patient_email=appt.get('patient_id'),
+                        status='COMPLETED'
+                    )
+                else:
+                    flash('Appointment completed but invoice generation failed', 'warning')
+            else:
+                flash(f'Status updated to {new_status}', 'success')
+                notify_appointment_status_change(
+                    patient_email=appt.get('patient_id'),
+                    status=new_status
+                )
+        else:
+            flash('Appointment already completed', 'info')
+            
+    except Exception as e:
+        logger.error(f"Error advancing status: {e}")
+        flash('Error updating status', 'error')
+    
+    return redirect(url_for('doctor_dashboard'))
+
 @app.route('/doctor_dashboard')
 def doctor_dashboard():
     if 'user_id' not in session or session.get('role') != 'doctor':
@@ -1351,6 +1424,66 @@ def patient_invoices():
     
     patient_invoices_list = get_patient_invoices(session['user_id'])
     return render_template('patient/invoices.html', invoices=patient_invoices_list)
+
+@app.route('/pay_invoice/<invoice_id>')
+def pay_invoice(invoice_id):
+    """Process invoice payment"""
+    if 'user_id' not in session or session.get('role') != 'patient':
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        # Update invoice status to paid
+        invoices_table.update_item(
+            Key={'invoice_id': invoice_id},
+            UpdateExpression="SET #s = :status_val",
+            ExpressionAttributeNames={'#s': 'status'},
+            ExpressionAttributeValues={':status_val': 'paid'}
+        )
+        
+        flash('Payment successful! Invoice marked as paid.', 'success')
+        
+        # Send confirmation email
+        send_email_notification(
+            session['user_id'],
+            "MedTrack - Payment Confirmed",
+            f"Your payment for invoice {invoice_id} has been processed successfully. Thank you!"
+        )
+        
+    except Exception as e:
+        logger.error(f"Payment error: {e}")
+        flash('Payment processing failed. Please try again.', 'error')
+    
+    return redirect(url_for('patient_invoices'))
+
+@app.route('/claim_insurance/<invoice_id>')
+def claim_insurance_route(invoice_id):
+    """Submit insurance claim for invoice"""
+    if 'user_id' not in session or session.get('role') != 'patient':
+        flash('Please login first.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        # Use existing claim_insurance function
+        success = claim_insurance(invoice_id)
+        
+        if success:
+            flash('Insurance claim submitted successfully! Processing typically takes 3-5 business days.', 'success')
+            
+            # Send confirmation
+            send_email_notification(
+                session['user_id'],
+                "MedTrack - Insurance Claim Submitted",
+                f"Your insurance claim for invoice {invoice_id} has been submitted. You will be notified once processed."
+            )
+        else:
+            flash('Insurance claim submission failed. Please contact support.', 'error')
+            
+    except Exception as e:
+        logger.error(f"Insurance claim error: {e}")
+        flash('Error submitting insurance claim. Please try again.', 'error')
+    
+    return redirect(url_for('patient_invoices'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

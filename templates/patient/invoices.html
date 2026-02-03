@@ -21,29 +21,25 @@
                 <td colspan="5" style="padding: 2rem; text-align: center; color: #9ca3af;">No invoices found.</td>
             </tr>
             {% else %}
-            {% for inv in invoices %}
-            <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 1rem;">{{ inv.date }}</td>
-                <td style="padding: 1rem; font-weight: 500;">{{ inv.details }}</td>
-                <td style="padding: 1rem;">${{ inv.amount }}</td>
-                <td style="padding: 1rem;">
-                    <span class="status-badge" style="background: {{ '#d1fae5' if inv.status == 'Claimed' else '#fee2e2' }}; 
-                                     color: {{ '#065f46' if inv.status == 'Claimed' else '#991b1b' }}">
-                        {{ inv.status }}
-                    </span>
-                </td>
-                <td style="padding: 1rem;">
-                    {% if inv.status == 'Unpaid' %}
-                    <a href="{{ url_for('claim_insurance', inv_id=inv.id) }}" class="btn"
-                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--secondary); color: white;">
-                        Claim Insurance
-                    </a>
-                    {% else %}
-                    <span style="color: #9ca3af; font-size: 0.9rem;"><i class="fas fa-check"></i> Processed</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
+            {% for inv in invoices %}\r\n \u003ctr style=\"border-bottom: 1px solid #f3f4f6;\"\u003e\r\n \u003ctd
+            style=\"padding: 1rem;\"\u003e{{ inv.created_at[:10] if inv.created_at else 'N/A' }}\u003c/td\u003e\r\n
+            \u003ctd style=\"padding: 1rem; font-weight: 500;\"\u003e{{ inv.description }}\u003c/td\u003e\r\n \u003ctd
+            style=\"padding: 1rem;\"\u003e₹{{ inv.amount }}\u003c/td\u003e\r\n \u003ctd style=\"padding:
+            1rem;\"\u003e\r\n \u003cspan class=\"status-badge\" \r\n style=\"background: {{ '#d1fae5' if
+            inv.insurance_claimed else '#fef3c7' if inv.status == 'paid' else '#fee2e2' }}; \r\n color: {{ '#065f46' if
+            inv.insurance_claimed else '#92400e' if inv.status == 'paid' else '#991b1b' }}\"\u003e\r\n {{ 'Claimed' if
+            inv.insurance_claimed else inv.status.upper() }}\r\n \u003c/span\u003e\r\n \u003c/td\u003e\r\n \u003ctd
+            style=\"padding: 1rem; display: flex; gap: 0.5rem;\"\u003e\r\n {% if inv.status == 'unpaid' and not
+            inv.insurance_claimed %}\r\n \u003ca href=\"{{ url_for('pay_invoice', invoice_id=inv.invoice_id) }}\"
+            class=\"btn\"\r\n style=\"padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--primary); color: white;
+            text-decoration: none; border-radius: 6px;\"\u003e\r\n \u003ci class=\"fas
+            fa-credit-card\"\u003e\u003c/i\u003e Pay Now\r\n \u003c/a\u003e\r\n \u003ca href=\"{{
+            url_for('claim_insurance_route', invoice_id=inv.invoice_id) }}\" class=\"btn\"\r\n style=\"padding: 0.5rem
+            1rem; font-size: 0.9rem; background: var(--secondary); color: white; text-decoration: none; border-radius:
+            6px;\"\u003e\r\n \u003ci class=\"fas fa-shield-alt\"\u003e\u003c/i\u003e Claim\r\n \u003c/a\u003e\r\n {%
+            else %}\r\n \u003cspan style=\"color: #9ca3af; font-size: 0.9rem;\"\u003e\u003ci class=\"fas
+            fa-check\"\u003e\u003c/i\u003e Processed\u003c/span\u003e\r\n {% endif %}\r\n \u003c/td\u003e\r\n
+            \u003c/tr\u003e\r\n {% endfor %}\r
             {% endif %}
         </tbody>
     </table>
