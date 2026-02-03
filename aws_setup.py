@@ -959,6 +959,15 @@ def doctor_appointments_list():
     appointments = get_doctor_appointments(session['user_id'])
     return render_template('doctor/appointments_list.html', appointments=appointments)
 
+@app.route('/doctor/vault/<patient_id>')
+def doctor_view_vault(patient_id):
+    if session.get('role') != 'doctor':
+        flash('Unauthorized', 'error')
+        return redirect(url_for('login'))
+        
+    records = get_patient_vault(patient_id)
+    return render_template('patient/vault.html', records=records, patient_id=patient_id)
+
 @app.route('/appointment/advance/<appt_id>')
 def advance_status(appt_id):
     if session.get('role') != 'doctor':
