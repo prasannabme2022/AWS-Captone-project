@@ -32,7 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:ap-southeast-2:050690756868:Medtrack_cloud_enabled_healthcare_management')
+SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:050690756868:Medtrack_cloud_enabled_healthcare_management')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -560,11 +560,15 @@ def get_patient_appointments(patient_email):
 def get_doctor_appointments(doctor_email):
     """Get all appointments for a specific doctor"""
     try:
-        # Filter appointments by doctor email for privacy
-        response = appointments_table.scan(
-            FilterExpression='doctor_email = :email',
-            ExpressionAttributeValues={':email': doctor_email}
-        )
+        # DEMO OVERRIDE: Allow 'medtrack@gmail.com' to see ALL appointments (Super View)
+        if doctor_email == 'medtrack@gmail.com':
+            response = appointments_table.scan()
+        else:
+            # Filter appointments by doctor email for privacy
+            response = appointments_table.scan(
+                FilterExpression='doctor_email = :email',
+                ExpressionAttributeValues={':email': doctor_email}
+            )
         
         appointments = [deserialize_item(item) for item in response.get('Items', [])]
         
@@ -588,6 +592,12 @@ def get_doctor_appointments(doctor_email):
     except ClientError as e:
         logger.error(f"Error getting doctor appointments: {e}")
         return []
+
+# ... (active_queue update usually in doctor_dashboard route but function is here)
+
+# Let me modify the doctor_dashboard route separately or if it's close enough.
+# It seems get_doctor_appointments is around line 560. doctor_dashboard is around 1280.
+# I will apply this change to get_doctor_appointments first.
 
 # ============================================
 # MEDICAL VAULT (FILE STORAGE)
@@ -1283,7 +1293,12 @@ def doctor_dashboard():
     today_appointments = [a for a in appointments if (a.get('appointment_date') or '').startswith(today_str)]
     
     # Active Queue: Include ALL active appointments regardless of date to ensure no one is missed
-    active_queue = [a for a in appointments if a.get('status') in ['BOOKED', 'CHECKED-IN', 'CONSULTING']]
+    # robust case-insensitive check
+    active_statuses = ['BOOKED', 'CHECKED-IN', 'CONSULTING']
+    active_queue = [
+        a for a in appointments 
+        if (a.get('status') or '').upper() in active_statuses
+    ]
     # Sort by time (Oldest first)
     active_queue.sort(key=lambda x: x.get('appointment_date', ''))
     
