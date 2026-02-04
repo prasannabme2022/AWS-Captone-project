@@ -8,19 +8,19 @@ from sns_service import sns_client # Import AWS SNS Service
 
 import boto3
 
-# AWS Configuration 
-REGION = 'ap-south-1' # Updated to Mumbai (India) 
+# AWS Configuration (UPDATED for consistency)
+REGION = 'ap-south-1' # Mumbai, India
 
 dynamodb = boto3.resource('dynamodb', region_name=REGION)
 sns = boto3.client('sns', region_name=REGION)
 
-# DynamoDB Tables (Reference vars for app usage)
+# DynamoDB Tables (FIXED: Consistent naming)
 patient_users_table = dynamodb.Table("PatientUser")
-admin_users_table = dynamodb.Table('AdminUsers')
+admin_users_table = dynamodb.Table('AdminUser')  # FIXED: Was 'AdminUsers'
 doctor_table = dynamodb.Table('DoctorUser')
 medtrack_data_table = dynamodb.Table('Medtrack_data')
 
-# SNS Topic ARN
+# SNS Topic ARN (UPDATED to match region)
 SNS_TOPIC_ARN = 'arn:aws:sns:ap-south-1:050690756868:Medtrack_cloud_enabled_healthcare_management'
 
 app = Flask(__name__)
