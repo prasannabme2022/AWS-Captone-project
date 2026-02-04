@@ -1056,8 +1056,36 @@ def patient_dashboard():
         flash('Please login as a patient first.', 'info')
         return redirect(url_for('login'))
     
-    appointments = get_patient_appointments(session['user_id'])
-    return render_template('patient/dashboard.html', appointments=appointments)
+    user_id = session['user_id']
+    
+    # 1. Appointments
+    appointments = get_patient_appointments(user_id)
+    
+    # 2. Billing: Calculate unpaid balance
+    invoices = get_patient_invoices(user_id)
+    unpaid_balance = sum(float(inv['amount']) for inv in invoices if inv['status'] == 'unpaid' and not inv.get('insurance_claimed'))
+    
+    # 3. Vault Stats: Prescriptions & Results
+    records = get_patient_vault(user_id)
+    prescriptions_count = sum(1 for r in records if 'prescription' in r.get('description', '').lower() or 'rx' in r.get('description', '').lower())
+    recent_results = [r for r in records if 'lab' in r.get('description', '').lower() or 'report' in r.get('description', '').lower()]
+    new_results_count = len(recent_results)
+    
+    # 4. Mock Vitals (In a real app, fetch from IoT table)
+    # We'll pass a random variation to make it feel alive if not mocked
+    vitals = {
+        'weight': 135,
+        'bp': '120/80',
+        'sugar': 98
+    }
+
+    return render_template('patient/dashboard.html', 
+                         appointments=appointments,
+                         unpaid_balance=unpaid_balance,
+                         prescriptions_count=prescriptions_count,
+                         recent_results=recent_results[:3], # Show top 3
+                         new_results_count=new_results_count,
+                         vitals=vitals)
 
 @app.route('/advance_status/<appt_id>')
 def advance_status(appt_id):
