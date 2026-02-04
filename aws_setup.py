@@ -1058,8 +1058,9 @@ def patient_dashboard():
     
     user_id = session['user_id']
     
-    # 1. Appointments
+    # 1. Appointments (Sorted by date, earliest first)
     appointments = get_patient_appointments(user_id)
+    appointments.sort(key=lambda x: x.get('appointment_date', ''), reverse=False)
     
     # 2. Billing: Calculate unpaid balance
     invoices = get_patient_invoices(user_id)
