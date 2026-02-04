@@ -183,11 +183,11 @@
                 </div>
                 <div style="background: #f9fafb; padding: 0.75rem; border-radius: 8px; text-align: center;">
                     <div style="font-size: 0.8rem; color: #6b7280;">Sex</div>
-                    <div style="font-weight: 600; color: #374151; font-size: 0.9rem;">Unknown</div>
+                    <div style="font-weight: 600; color: #374151; font-size: 0.9rem;">Not Specified</div>
                 </div>
                 <div style="background: #f9fafb; padding: 0.75rem; border-radius: 8px; text-align: center;">
                     <div style="font-size: 0.8rem; color: #6b7280;">Last Visit</div>
-                    <div style="font-weight: 600; color: #374151; font-size: 0.9rem;">N/A</div>
+                    <div style="font-weight: 600; color: #374151; font-size: 0.9rem;">First Visit</div>
                 </div>
                 <div style="background: #f9fafb; padding: 0.75rem; border-radius: 8px; text-align: center;">
                     <div style="font-size: 0.8rem; color: #6b7280;">Status</div>
@@ -252,41 +252,48 @@
                     {% else %}
                     {% for appt in active_queue %}
                     <tr style="border-bottom: 1px solid #f9fafb;">
-                        <td style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 500; font-size: 0.9rem;">
+                        <td
+                            style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 500; font-size: 0.9rem; vertical-align: middle;">
+                            {% if 'N/A' in appt.time %}
+                            <span style="color: #d1d5db; font-size: 0.8rem;">--:--</span>
+                            {% else %}
                             {{ appt.time.split(' ')[1] if ' ' in appt.time else appt.time }}
+                            {% endif %}
                         </td>
-                        <td style="padding: 1rem 1.5rem;">
+                        <td style="padding: 1rem 1.5rem; vertical-align: middle;">
                             <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_name }}</div>
                             <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.patient_id }}</div>
                         </td>
-                        <td style="padding: 1rem 1.5rem;">
+                        <td style="padding: 1rem 1.5rem; vertical-align: middle;">
                             <span
                                 class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
                                 {{ appt.status }}
                             </span>
                         </td>
-                        <td style="padding: 1rem 1.5rem; text-align: right;">
-                            <a href="{{ url_for('doctor_view_vault', patient_id=appt.patient_id) }}"
-                                style="background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; margin-right: 0.5rem;">
-                                History
-                            </a>
+                        <td style="padding: 1rem 1.5rem; text-align: right; vertical-align: middle;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                                <a href="{{ url_for('doctor_view_vault', patient_id=appt.patient_id) }}"
+                                    style="background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none;">
+                                    History
+                                </a>
 
-                            {% if appt.status == 'BOOKED' %}
-                            <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
-                                style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                <i class="fas fa-check-circle"></i> Check In
-                            </a>
-                            {% elif appt.status == 'CHECKED-IN' %}
-                            <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
-                                style="background: #2563eb; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                <i class="fas fa-stethoscope"></i> Start Consult
-                            </a>
-                            {% elif appt.status == 'CONSULTING' %}
-                            <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
-                                style="background: #f59e0b; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                <i class="fas fa-flag-checkered"></i> Complete
-                            </a>
-                            {% endif %}
+                                {% if appt.status == 'BOOKED' %}
+                                <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                    style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-check-circle"></i> Check In
+                                </a>
+                                {% elif appt.status == 'CHECKED-IN' %}
+                                <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                    style="background: #2563eb; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-stethoscope"></i> Start Consult
+                                </a>
+                                {% elif appt.status == 'CONSULTING' %}
+                                <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                    style="background: #f59e0b; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-flag-checkered"></i> Complete
+                                </a>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
