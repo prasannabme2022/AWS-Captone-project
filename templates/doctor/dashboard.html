@@ -219,25 +219,34 @@
 
         <!-- Table for Queue Actions -->
         <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                <h3 style="margin: 0; font-size: 1.1rem; color: #374151;">Active Queue Management</h3>
+            style="background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden;">
+            <div style="padding: 1.5rem 1.5rem 1rem;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937; font-weight: 600;">Patient Queue</h3>
             </div>
+
             <table style="width: 100%; border-collapse: collapse;">
-                <thead style="border-bottom: 2px solid #f3f4f6;">
+                <thead style="background: #f0f9ff; border-top: 1px solid #e0f2fe; border-bottom: 1px solid #e0f2fe;">
                     <tr>
-                        <th style="padding: 1rem 0; text-align: left; color: #6b7280; font-weight: 500;">Patient</th>
-                        <th style="padding: 1rem 0; text-align: left; color: #6b7280; font-weight: 500;">Status</th>
-                        <th style="padding: 1rem 0; text-align: right; color: #6b7280; font-weight: 500;">Action</th>
+                        <th
+                            style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
+                            Time</th>
+                        <th
+                            style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
+                            Patient</th>
+                        <th
+                            style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
+                            Status</th>
+                        <th
+                            style="padding: 1rem 1.5rem; text-align: right; color: #374151; font-weight: 600; font-size: 0.9rem;">
+                            Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if not active_queue %}
                     <tr>
-                        <td colspan="3" style="padding: 2rem; text-align: center; color: #9ca3af;">
-                            <i class="fas fa-mug-hot"
-                                style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
-                            All caught up! No active patients in queue.
+                        <td colspan="4" style="padding: 3rem; text-align: center; color: #9ca3af;">
+                            <div style="margin-bottom: 0.5rem; font-size: 0.95rem;">No appointments scheduled for today.
+                            </div>
                         </td>
                     </tr>
                     {% else %}
