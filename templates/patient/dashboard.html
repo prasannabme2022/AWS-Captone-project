@@ -89,6 +89,67 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Timeline Tracker -->
+            <div style="margin-bottom: 2rem; position: relative; padding: 0 1rem;">
+                <!-- Connector Line -->
+                <div
+                    style="position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e5e7eb; z-index: 0;">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; position: relative; z-index: 1;">
+                    <!-- Step 1: Booked -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
+                            Booked</div>
+                    </div>
+
+                    <!-- Step 2: Check-In -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
+                            Check-In</div>
+                    </div>
+
+                    <!-- Step 3: Consulting -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
+                            Consulting</div>
+                    </div>
+
+                    <!-- Step 4: Completed -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status == 'COMPLETED' else '#e5e7eb' }}; font-size: 0.9rem;">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status == 'COMPLETED' else '#9ca3af' }}; font-weight: 500;">
+                            Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn"
+                    style="flex: 1; background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.8rem;">Reschedule</button>
+                <button class="btn btn-primary" style="flex: 1; padding: 0.8rem;">Join Video Call <i
+                        class="fas fa-video" style="margin-left: 0.5rem;"></i></button>
+            </div>
             {% else %}
             <div style="text-align: center; padding: 2rem; color: #6b7280;">
                 <i class="fas fa-calendar-check" style="font-size: 3rem; margin-bottom: 1rem; color: #d1d5db;"></i>
@@ -97,13 +158,6 @@
                     Now</a>
             </div>
             {% endif %}
-
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn"
-                    style="flex: 1; background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.8rem;">Reschedule</button>
-                <button class="btn btn-primary" style="flex: 1; padding: 0.8rem;">Join Video Call <i
-                        class="fas fa-video" style="margin-left: 0.5rem;"></i></button>
-            </div>
         </div>
 
         <!-- Health Overview Card -->
