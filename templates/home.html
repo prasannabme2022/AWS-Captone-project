@@ -2,64 +2,55 @@
 
 {% block content %}
 <div
-    style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #eefdfd; padding: 2rem;">
+    style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #f3f4f6; padding: 2rem;">
 
     <div
         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; width: 100%;">
 
-        <!-- Card 1: AI Clinical Support -->
-        <div
-            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-            <div
-                style="width: 50px; height: 50px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-brain" style="color: #0284c7; font-size: 1.5rem;"></i>
+        <!-- Card 1: For Patients -->
+        <a href="{{ url_for('login') }}" style="text-decoration: none; color: inherit;">
+            <div style="background: white; padding: 3rem 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); text-align: center; height: 100%; transition: transform 0.2s; cursor: pointer;"
+                onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                    style="width: 60px; height: 60px; background: #0d9488; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                    <i class="fas fa-user-injured" style="color: white; font-size: 2rem;"></i>
+                </div>
+                <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">For Patients</h3>
+                <p style="color: #6b7280; font-size: 1rem; line-height: 1.6;">
+                    Track your health journey, upload reports securely, and book appointments with ease.
+                </p>
             </div>
-            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">AI Clinical Support
-            </h3>
-            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
-                Advanced machine learning algorithms to assist in early diagnosis and treatment planning.
-            </p>
-            <a href="{{ url_for('ai_chat') if session.get('user_id') else url_for('login') }}"
-                style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
-                Access Tools
-            </a>
-        </div>
+        </a>
 
-        <!-- Card 2: Blood Bank Network -->
-        <div
-            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-            <div
-                style="width: 50px; height: 50px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-tint" style="color: #dc2626; font-size: 1.5rem;"></i>
+        <!-- Card 2: For Doctors -->
+        <a href="{{ url_for('login') }}" style="text-decoration: none; color: inherit;">
+            <div style="background: white; padding: 3rem 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); text-align: center; height: 100%; transition: transform 0.2s; cursor: pointer;"
+                onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                    style="width: 60px; height: 60px; background: #0f766e; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                    <i class="fas fa-user-md" style="color: white; font-size: 2rem;"></i>
+                </div>
+                <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">For Doctors</h3>
+                <p style="color: #6b7280; font-size: 1rem; line-height: 1.6;">
+                    Manage patient records, review AI-assisted diagnostics, and streamline your workflow.
+                </p>
             </div>
-            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Blood Bank Network
-            </h3>
-            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
-                Real-time blood availability tracking across our interconnected hospital network.
-            </p>
-            <a href="{{ url_for('blood_bank') }}"
-                style="color: #2563eb; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
-                Check Availability
-            </a>
-        </div>
+        </a>
 
-        <!-- Card 3: Secure Comm Center -->
-        <div
-            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-            <div
-                style="width: 50px; height: 50px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-comments" style="color: #16a34a; font-size: 1.5rem;"></i>
+        <!-- Card 3: AI Powered -->
+        <a href="{{ url_for('about') }}" style="text-decoration: none; color: inherit;">
+            <div style="background: white; padding: 3rem 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); text-align: center; height: 100%; transition: transform 0.2s; cursor: pointer;"
+                onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                    style="width: 60px; height: 60px; background: #0d9488; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                    <i class="fas fa-brain" style="color: white; font-size: 2rem;"></i>
+                </div>
+                <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">AI Powered</h3>
+                <p style="color: #6b7280; font-size: 1rem; line-height: 1.6;">
+                    Leverage cutting-edge AI analysis for preliminary report insights and health tracking.
+                </p>
             </div>
-            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Secure Comm Center
-            </h3>
-            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
-                Direct, department-filtered communication channels between patients and specialists.
-            </p>
-            <a href="{{ url_for('doctor_chat_view' if session.get('role') == 'doctor' else 'patient_chat') if session.get('user_id') else url_for('login') }}"
-                style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
-                Start Chat
-            </a>
-        </div>
+        </a>
 
     </div>
 </div>
