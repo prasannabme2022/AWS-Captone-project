@@ -1282,6 +1282,11 @@ def doctor_dashboard():
     today_str = datetime.now().strftime('%Y-%m-%d')
     today_appointments = [a for a in appointments if (a.get('appointment_date') or '').startswith(today_str)]
     
+    # Active Queue: Filter for today's active appointments (Booked, Checked-In, Consulting)
+    active_queue = [a for a in today_appointments if a.get('status') in ['BOOKED', 'CHECKED-IN', 'CONSULTING']]
+    # Sort by time
+    active_queue.sort(key=lambda x: x.get('appointment_date', ''))
+    
     # Calculate stats
     total_patients = len(set(a.get('patient_email') for a in appointments if a.get('patient_email')))
     
@@ -1293,17 +1298,23 @@ def doctor_dashboard():
     
     # Mock alerts and next_patient for demo if list is empty
     next_patient = None
-    if appointments:
-        # Just pick the first as next for demo
-        first_ppt = appointments[0]
+    if active_queue:
+        # Pick the first active patient as next
+        first_ppt = active_queue[0]
+        # Try to get patient details
+        p_email = first_ppt.get('patient_email')
+        p_details = get_patient(p_email) if p_email else {}
+        
         next_patient = {
-            'name': first_ppt.get('patient_email', 'Unknown'),
-            'id': first_ppt.get('patient_email', 'Unknown'),
-            'dob': '1990-01-01'
+            'name': first_ppt.get('patient_name', 'Unknown'),
+            'id': p_email or 'Unknown',
+            'dob': p_details.get('dob', 'N/A'),
+            'status': first_ppt.get('status')
         }
         
     return render_template('doctor/dashboard.html', 
                          appointments=appointments,
+                         active_queue=active_queue,
                          stats=stats,
                          today_appointments=today_appointments,
                          next_patient=next_patient,

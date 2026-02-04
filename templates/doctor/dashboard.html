@@ -232,12 +232,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for appt in appointments[:5] %}
+                    {% if not active_queue %}
+                    <tr>
+                        <td colspan="3" style="padding: 2rem; text-align: center; color: #9ca3af;">
+                            <i class="fas fa-mug-hot"
+                                style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                            All caught up! No active patients in queue.
+                        </td>
+                    </tr>
+                    {% else %}
+                    {% for appt in active_queue %}
                     <tr style="border-bottom: 1px solid #f9fafb;">
                         <td style="padding: 1rem 0;">
                             <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_name }}</div>
                             <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.patient_id }}</div>
-                            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 2px;">{{ appt.time }}</div>
+                            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 2px;">{{ appt.time.split(' ')[1]
+                                if ' ' in appt.time else appt.time }}</div>
                         </td>
                         <td style="padding: 1rem 0;">
                             <span
@@ -266,14 +276,11 @@
                                 style="background: #f59e0b; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                                 <i class="fas fa-flag-checkered"></i> Complete
                             </a>
-                            {% else %}
-                            <span style="color: #9ca3af; font-size: 0.85rem; padding: 0.4rem 0.8rem;">
-                                <i class="fas fa-check"></i> Done
-                            </span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
