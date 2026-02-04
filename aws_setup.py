@@ -1237,7 +1237,7 @@ def advance_status(appt_id):
                 consultation_fee = random.randint(500, 2000)
                 
                 invoice_id = create_invoice(
-                    patient_email=appt.get('patient_id'),
+                    patient_email=appt.get('patient_email'),  # Fixed: was 'patient_id'
                     appointment_id=appt_id,
                     amount=consultation_fee,
                     description=f"Consultation with Dr. {session.get('user_name', 'Doctor')}"
@@ -1248,7 +1248,7 @@ def advance_status(appt_id):
                     
                     # Notify patient
                     notify_appointment_status_change(
-                        patient_email=appt.get('patient_id'),
+                        patient_email=appt.get('patient_email'),  # Fixed: was 'patient_id'
                         status='COMPLETED',
                         appointment_id=appt_id,
                         doctor_name=session.get('user_name', 'Doctor')
@@ -1258,7 +1258,7 @@ def advance_status(appt_id):
             else:
                 flash(f'Status updated to {new_status}', 'success')
                 notify_appointment_status_change(
-                    patient_email=appt.get('patient_id'),
+                    patient_email=appt.get('patient_email'),  # Fixed: was 'patient_id'
                     status=new_status,
                     appointment_id=appt_id,
                     doctor_name=session.get('user_name', 'Doctor')
