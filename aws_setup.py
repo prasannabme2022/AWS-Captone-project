@@ -1169,28 +1169,6 @@ def patient_dashboard():
                          medical_history=medical_history,
                          messages_count=messages_count)
 
-@app.route('/patient/invoices')
-def patient_invoices():
-    """Display all invoices for the logged-in patient"""
-    if 'user_id' not in session or session.get('role') != 'patient':
-        flash('Please login as a patient first.', 'info')
-        return redirect(url_for('login'))
-    
-    user_id = session['user_id']
-    invoices = get_patient_invoices(user_id)
-    
-    # Calculate totals
-    total_amount = sum(float(inv.get('amount', 0)) for inv in invoices)
-    unpaid_amount = sum(float(inv.get('amount', 0)) for inv in invoices if inv.get('status') == 'unpaid')
-    paid_amount = sum(float(inv.get('amount', 0)) for inv in invoices if inv.get('status') == 'paid')
-    
-    return render_template('patient/invoices.html',
-                         invoices=invoices,
-                         total_amount=total_amount,
-                         unpaid_amount=unpaid_amount,
-                         paid_amount=paid_amount)
-
-
 @app.route('/update_vitals', methods=['POST'])
 def update_vitals():
     if 'user_id' not in session: return redirect(url_for('login'))
