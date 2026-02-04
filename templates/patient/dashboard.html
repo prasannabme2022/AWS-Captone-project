@@ -8,32 +8,42 @@
         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <!-- Stat 1: Upcoming -->
         <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem; position: relative; overflow: hidden;">
             <div
                 style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #0284c7; font-size: 1.2rem;">
                 <i class="fas fa-calendar-alt"></i>
             </div>
             <div>
                 <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Next Appointment</div>
-
+                {% set upcoming = appointments | selectattr('status', 'equalto', 'BOOKED') | first %}
                 <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">
                     {{ upcoming.appointment_date[5:] if upcoming and upcoming.appointment_date else 'No Upcoming' }}
                 </div>
             </div>
         </div>
 
-        <!-- Stat 2: Prescriptions -->
-        <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
-            <div
-                style="width: 48px; height: 48px; background: #fefce8; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706; font-size: 1.2rem;">
-                <i class="fas fa-pills"></i>
+        <!-- Stat 2: Check-In / Messages -->
+        <a href="{{ url_for('assistant') }}" style="text-decoration: none;">
+            <div style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem; transition: transform 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                    style="width: 48px; height: 48px; background: #fefce8; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706; font-size: 1.2rem;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">AI Companion</div>
+                    <div
+                        style="font-weight: 700; color: #1f2937; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        Chat Now
+                        {% if messages_count > 0 %}
+                        <span
+                            style="background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 99px;">{{
+                            messages_count }}</span>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div>
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Prescriptions</div>
-                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ prescriptions_count }} active</div>
-            </div>
-        </div>
+        </a>
 
         <!-- Stat 3: Test Results -->
         <div
@@ -45,6 +55,10 @@
             <div>
                 <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Test Results</div>
                 <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ new_results_count }} new</div>
+                {% if new_results_count > 0 %}
+                <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600; cursor: pointer; margin-top: 0.2rem;">
+                    View & Analyze &rarr;</div>
+                {% endif %}
             </div>
         </div>
 
@@ -58,8 +72,53 @@
             <div>
                 <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Billing Due</div>
                 <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">₹{{ unpaid_balance }}</div>
+                {% if unpaid_balance > 0 %}
+                <a href="{{ url_for('patient_invoices') }}"
+                    style="font-size: 0.75rem; color: #dc2626; font-weight: 600; text-decoration: none; display: block; margin-top: 0.2rem;">Pay
+                    Now &rarr;</a>
+                {% endif %}
             </div>
         </div>
+    </div>
+
+    <!-- Smart Action Strip -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
+        <!-- AI checkup -->
+        <div
+            style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #4f46e5, #6366f1); padding: 1.5rem; border-radius: 16px; color: white; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);">
+            <div>
+                <i class="fas fa-sparkles" style="font-size: 1.2rem; margin-bottom: 0.5rem; opacity: 0.9;"></i>
+                <div style="font-weight: 600; margin-bottom: 0.2rem;">AI Health Check</div>
+                <div style="font-size: 0.85rem; opacity: 0.9;">Analyze my recent symptoms</div>
+            </div>
+            <div style="align-self: flex-end; font-size: 1.2rem; opacity: 0.8;"><i class="fas fa-arrow-right"></i>
+            </div>
+        </div>
+
+        <!-- Emergency SOS -->
+        <div style="flex: 1; min-width: 200px; background: white; border: 2px solid #fee2e2; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.borderColor='#ef4444'; this.style.background='#fef2f2'">
+            <div>
+                <i class="fas fa-ambulance" style="color: #ef4444; font-size: 1.2rem; margin-bottom: 0.5rem;"></i>
+                <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.2rem;">Emergency SOS</div>
+                <div style="font-size: 0.85rem; color: #6b7280;">Quick access to support</div>
+            </div>
+            <div style="align-self: flex-end; color: #ef4444;"><i class="fas fa-phone-alt"></i></div>
+        </div>
+
+        <!-- Upload Records -->
+        <a href="{{ url_for('patient_vault') }}" style="text-decoration: none; flex: 1; min-width: 200px;">
+            <div style="height: 100%; background: white; border: 1px solid #e5e7eb; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#f9fafb'">
+                <div>
+                    <i class="fas fa-cloud-upload-alt"
+                        style="color: #3b82f6; font-size: 1.2rem; margin-bottom: 0.5rem;"></i>
+                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.2rem;">Upload Records</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">Add lab reports or scans</div>
+                </div>
+                <div style="align-self: flex-end; color: #3b82f6;"><i class="fas fa-plus"></i></div>
+            </div>
+        </a>
     </div>
 
     <!-- Main Content Grid -->
@@ -164,7 +223,12 @@
         <div
             style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Health Overview</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Health Overview</h3>
+                    <span
+                        style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 600;"><i
+                            class="fas fa-magic" style="margin-right: 4px;"></i> AI Analysis Ready</span>
+                </div>
                 <button onclick="document.getElementById('vitalsModal').style.display='flex'"
                     style="background: none; border: none; cursor: pointer; color: #6b7280; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-edit"></i> Edit
@@ -241,6 +305,8 @@
         <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Medical History</h3>
+                <!-- View All Link (Hidden for now as distinct page doesn't exist, but ready for expansion) -->
+                <!-- <a href="#" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none;">Full Record</a> -->
                 <!-- Add Condition Form -->
                 <form action="{{ url_for('add_medical_history') }}" method="POST" style="display: flex; gap: 0.5rem;">
                     <input type="text" name="condition" placeholder="Add condition..." required

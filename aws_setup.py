@@ -1087,16 +1087,30 @@ def patient_dashboard():
         logger.error(f"Error fetching patient health data: {e}")
         vitals = {'weight': '-', 'bp': '-', 'sugar': '-'}
         medical_history = []
+        
+    # 5. Get Messages Count (Unread)
+    try:
+        # Assuming chat_messages_table exists and has 'receiver_id' and 'is_read'
+        # For now, safe default or simple scan if schema matches
+        messages_count = 0
+        # msg_response = chat_messages_table.scan(
+        #     FilterExpression='receiver_id = :uid AND is_read = :read',
+        #     ExpressionAttributeValues={':uid': user_id, ':read': False}
+        # )
+        # messages_count = msg_response['Count']
+    except Exception:
+        messages_count = 0
 
     return render_template('patient/dashboard.html', 
                          appointments=appointments,
-                         upcoming=upcoming_appointment, # Pass explicit upcoming appt
+                         upcoming=upcoming_appointment, 
                          unpaid_balance=unpaid_balance,
                          prescriptions_count=prescriptions_count,
                          recent_results=recent_results[:3],
                          new_results_count=new_results_count,
                          vitals=vitals,
-                         medical_history=medical_history)
+                         medical_history=medical_history,
+                         messages_count=messages_count)
 
 @app.route('/update_vitals', methods=['POST'])
 def update_vitals():
