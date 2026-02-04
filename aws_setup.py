@@ -1071,21 +1071,71 @@ def patient_dashboard():
     recent_results = [r for r in records if 'lab' in r.get('description', '').lower() or 'report' in r.get('description', '').lower()]
     new_results_count = len(recent_results)
     
-    # 4. Mock Vitals (In a real app, fetch from IoT table)
-    # We'll pass a random variation to make it feel alive if not mocked
-    vitals = {
-        'weight': 135,
-        'bp': '120/80',
-        'sugar': 98
-    }
+    # 4. Fetch Vitals & Medical History from Patient Profile
+    try:
+        response = patients_table.get_item(Key={'patient_id': user_id})
+        patient_data = response.get('Item', {})
+        vitals = patient_data.get('vitals', {'weight': '--', 'bp': '--/--', 'sugar': '--'})
+        medical_history = patient_data.get('medical_history', [])
+    except Exception as e:
+        logger.error(f"Error fetching patient health data: {e}")
+        vitals = {'weight': '-', 'bp': '-', 'sugar': '-'}
+        medical_history = []
 
     return render_template('patient/dashboard.html', 
                          appointments=appointments,
                          unpaid_balance=unpaid_balance,
                          prescriptions_count=prescriptions_count,
-                         recent_results=recent_results[:3], # Show top 3
+                         recent_results=recent_results[:3],
                          new_results_count=new_results_count,
-                         vitals=vitals)
+                         vitals=vitals,
+                         medical_history=medical_history)
+
+@app.route('/update_vitals', methods=['POST'])
+def update_vitals():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    weight = request.form.get('weight')
+    bp = request.form.get('bp')
+    sugar = request.form.get('sugar')
+    
+    try:
+        patients_table.update_item(
+            Key={'patient_id': session['user_id']},
+            UpdateExpression="SET vitals = :v",
+            ExpressionAttributeValues={
+                ':v': {'weight': weight, 'bp': bp, 'sugar': sugar}
+            }
+        )
+        flash('Vitals updated successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error updating vitals: {e}")
+        flash('Error updating vitals.', 'error')
+        
+    return redirect(url_for('patient_dashboard'))
+
+@app.route('/add_medical_history', methods=['POST'])
+def add_medical_history():
+    if 'user_id' not in session: return redirect(url_for('login'))
+    
+    condition = request.form.get('condition')
+    if condition:
+        try:
+            # Append to list (if list exists), else create new list
+            patients_table.update_item(
+                Key={'patient_id': session['user_id']},
+                UpdateExpression="SET medical_history = list_append(if_not_exists(medical_history, :empty_list), :c)",
+                ExpressionAttributeValues={
+                    ':c': [condition],
+                    ':empty_list': []
+                }
+            )
+            flash('Medical history updated.', 'success')
+        except Exception as e:
+            logger.error(f"Error updating history: {e}")
+            flash('Error updating medical history.', 'error')
+            
+    return redirect(url_for('patient_dashboard'))
 
 @app.route('/advance_status/<appt_id>')
 def advance_status(appt_id):
