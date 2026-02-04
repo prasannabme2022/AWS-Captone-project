@@ -155,9 +155,26 @@ def send_notification(message, subject="MedTrack Notification"):
         logger.error(f"Failed to send SNS notification: {e}")
         return False
 
+def subscribe_email(email):
+    """Subscribe email to SNS Topic"""
+    try:
+        response = sns_client.subscribe(
+            TopicArn=SNS_TOPIC_ARN,
+            Protocol='email',
+            Endpoint=email
+        )
+        logger.info(f"Subscribed {email} to SNS Topic. Subscription ARN: {response.get('SubscriptionArn')}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to subscribe {email}: {e}")
+        return False
+
 def send_email_notification(email, subject, message):
     """Send email notification via SNS"""
     try:
+        # Ensure subscription first (Idempotent-ish)
+        subscribe_email(email)
+        
         response = sns_client.publish(
             TopicArn=SNS_TOPIC_ARN,
             Message=message,
@@ -309,6 +326,9 @@ def create_patient(email, password, name, phone, address, dob, blood_group):
             Item=patient_data,
             ConditionExpression='attribute_not_exists(email)'
         )
+        
+        # Subscribe patient to SNS notifications
+        subscribe_email(email)
         
         # Send notification
         send_notification(
