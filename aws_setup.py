@@ -1544,12 +1544,25 @@ def patient_vault():
 
 @app.route('/patient_invoices')
 def patient_invoices():
+    """Display all invoices for the logged-in patient"""
     if 'user_id' not in session or session.get('role') != 'patient':
         flash('Please login first.', 'error')
         return redirect(url_for('login'))
     
-    patient_invoices_list = get_patient_invoices(session['user_id'])
-    return render_template('patient/invoices.html', invoices=patient_invoices_list)
+    user_id = session['user_id']
+    patient_invoices_list = get_patient_invoices(user_id)
+    
+    # Calculate totals
+    total_amount = sum(float(inv.get('amount', 0)) for inv in patient_invoices_list)
+    unpaid_amount = sum(float(inv.get('amount', 0)) for inv in patient_invoices_list if inv.get('status') == 'unpaid')
+    paid_amount = sum(float(inv.get('amount', 0)) for inv in patient_invoices_list if inv.get('status') == 'paid')
+    
+    return render_template('patient/invoices.html', 
+                         invoices=patient_invoices_list,
+                         total_amount=total_amount,
+                         unpaid_amount=unpaid_amount,
+                         paid_amount=paid_amount)
+
 
 @app.route('/pay_invoice/<invoice_id>')
 def pay_invoice(invoice_id):
