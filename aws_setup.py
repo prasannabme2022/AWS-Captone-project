@@ -1299,8 +1299,8 @@ def doctor_dashboard():
         a for a in appointments 
         if (a.get('status') or '').upper() in active_statuses
     ]
-    # Sort by time (Oldest first)
-    active_queue.sort(key=lambda x: x.get('appointment_date', ''))
+    # Sort by time (Oldest first), safely handling None values
+    active_queue.sort(key=lambda x: (x.get('appointment_date') or ''))
     
     # Calculate stats
     total_patients = len(set(a.get('patient_email') for a in appointments if a.get('patient_email')))
