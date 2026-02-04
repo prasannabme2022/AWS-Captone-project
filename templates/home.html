@@ -1,195 +1,66 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="text-align: center; padding: 4rem 1rem;">
-    <!-- Hero Section -->
-    <div style="max-width: 800px; margin: 0 auto; margin-bottom: 4rem;">
-        <h1 class="text-gradient" style="font-size: 3.5rem; margin-bottom: 1.5rem; line-height: 1.2;">
-            Advanced Healthcare <br> Ecosystem
-        </h1>
-        <p style="font-size: 1.25rem; color: #6b7280; margin-bottom: 2.5rem; line-height: 1.6;">
-            Medtrack connects patients, doctors, and institutions in a seamless, real-time medical journey.
-            Experience the future of hospital management.
-        </p>
-        {% if not current_user %}
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-            <a href="{{ url_for('login') }}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
-                Get Started <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
-            </a>
-            <a href="{{ url_for('about') }}" class="btn"
-                style="padding: 1rem 2rem; font-size: 1.1rem; background: white; color: #374151; border: 1px solid #e5e7eb;">
-                Learn More
-            </a>
-        </div>
-        {% endif %}
-    </div>
+<div
+    style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #eefdfd; padding: 2rem;">
 
-    <!-- Role-Specific Features Grid -->
-    <div class="features-grid"
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; width: 100%;">
 
-        {% if current_role == 'patient' %}
-        <!-- PATIENT ROLE: AI Clinical Support -->
-        <div class="glass-panel"
-            style="text-align: left; padding: 2rem; border: 2px solid #0284c7; box-shadow: 0 10px 30px rgba(2, 132, 199, 0.2);">
-            <div class="feature-icon"
-                style="width: 60px; height: 60px; background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
-                <i class="fas fa-brain"></i>
+        <!-- Card 1: AI Clinical Support -->
+        <div
+            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+            <div
+                style="width: 50px; height: 50px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-brain" style="color: #0284c7; font-size: 1.5rem;"></i>
             </div>
-            <h3 style="margin-bottom: 0.5rem; color: #0284c7; font-size: 1.5rem;">AI Clinical Support</h3>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Your personal AI health companion powered by AWS Bedrock.
-                Get instant symptom analysis, health guidance, and medical report interpretation 24/7.</p>
-            <a href="{{ url_for('ai_chat') }}" class="btn btn-primary"
-                style="margin-top: 1rem; width: 100%; text-align: center;">
-                <i class="fas fa-robot"></i> Launch AI Assistant
-            </a>
-        </div>
-
-        <!-- Supporting Features for Patients -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #fef2f2; color: #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Book Appointments</h3>
-            <p style="color: #6b7280;">Schedule consultations with specialists across India. Real-time availability.</p>
-            <a href="{{ url_for('book_appointment') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">Book Now</a>
-        </div>
-
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #f0fdf4; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-file-medical"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Medical Vault</h3>
-            <p style="color: #6b7280;">Securely store and access your medical records anytime, anywhere.</p>
-            <a href="{{ url_for('patient_vault') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">View Records</a>
-        </div>
-
-        {% elif current_role == 'doctor' %}
-        <!-- DOCTOR ROLE: Blood Bank Network -->
-        <div class="glass-panel"
-            style="text-align: left; padding: 2rem; border: 2px solid #dc2626; box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);">
-            <div class="feature-icon"
-                style="width: 60px; height: 60px; background: linear-gradient(135deg, #dc2626, #ef4444); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
-                <i class="fas fa-tint"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #dc2626; font-size: 1.5rem;">Blood Bank Network</h3>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Real-time blood availability tracking across our
-                interconnected hospital network. Manage inventory, check stock levels, and coordinate emergency
-                supplies.</p>
-            <a href="{{ url_for('blood_bank') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center; background: #dc2626; color: white;">
-                <i class="fas fa-hospital"></i> Access Blood Bank
-            </a>
-        </div>
-
-        <!-- Supporting Features for Doctors -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #eff6ff; color: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-users"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Patient Queue</h3>
-            <p style="color: #6b7280;">Manage your daily appointments and patient consultations efficiently.</p>
-            <a href="{{ url_for('doctor_dashboard') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">View Dashboard</a>
-        </div>
-
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #f0fdf4; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-comments"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Patient Messages</h3>
-            <p style="color: #6b7280;">Respond to patient queries and provide 24/7 support via chat.</p>
-            <a href="{{ url_for('doctor_chat_view') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">Open Chat</a>
-        </div>
-
-        {% elif current_role == 'admin' %}
-        <!-- ADMIN ROLE: Secure Comm Center -->
-        <div class="glass-panel"
-            style="text-align: left; padding: 2rem; border: 2px solid #16a34a; box-shadow: 0 10px 30px rgba(22, 163, 74, 0.2);">
-            <div class="feature-icon"
-                style="width: 60px; height: 60px; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #16a34a; font-size: 1.5rem;">Secure Comm Center</h3>
-            <p style="color: #6b7280; margin-bottom: 1.5rem;">Centralized communication hub with end-to-end encryption.
-                Monitor all patient-doctor interactions, manage department channels, and ensure HIPAA compliance.</p>
-            <a href="{{ url_for('admin_dashboard') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center; background: #16a34a; color: white;">
-                <i class="fas fa-lock"></i> Access Control Center
-            </a>
-        </div>
-
-        <!-- Supporting Features for Admin -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #fef3c7; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-user-md"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Manage Doctors</h3>
-            <p style="color: #6b7280;">Add, edit, and manage doctor profiles and schedules.</p>
-            <a href="{{ url_for('admin_doctors') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">View Doctors</a>
-        </div>
-
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #f3e8ff; color: #9333ea; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Analytics</h3>
-            <p style="color: #6b7280;">View system-wide statistics, reports, and performance metrics.</p>
-            <a href="{{ url_for('admin_dashboard') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">View Analytics</a>
-        </div>
-
-        {% else %}
-        <!-- DEFAULT: Not Logged In -->
-        <!-- Feature 1: AI Clinical Support -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #e0f2fe; color: #0284c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-brain"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">AI Clinical Support</h3>
-            <p style="color: #6b7280;">Advanced machine learning algorithms to assist in early diagnosis and treatment
-                planning.</p>
-            <a href="{{ url_for('login') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">Access Tools</a>
-        </div>
-
-        <!-- Feature 2: Blood Bank Network -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #fef2f2; color: #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-tint"></i>
-            </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Blood Bank Network</h3>
-            <p style="color: #6b7280;">Real-time blood availability tracking across our interconnected hospital network.
+            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">AI Clinical Support
+            </h3>
+            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
+                Advanced machine learning algorithms to assist in early diagnosis and treatment planning.
             </p>
-            <a href="{{ url_for('login') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">Check Availability</a>
+            <a href="{{ url_for('ai_chat') if session.get('user_id') else url_for('login') }}"
+                style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
+                Access Tools
+            </a>
         </div>
 
-        <!-- Feature 3: Secure Comm Center -->
-        <div class="glass-panel" style="text-align: left; padding: 2rem;">
-            <div class="feature-icon"
-                style="width: 50px; height: 50px; background: #f0fdf4; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
-                <i class="fas fa-comments"></i>
+        <!-- Card 2: Blood Bank Network -->
+        <div
+            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+            <div
+                style="width: 50px; height: 50px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-tint" style="color: #dc2626; font-size: 1.5rem;"></i>
             </div>
-            <h3 style="margin-bottom: 0.5rem; color: #1f2937;">Secure Comm Center</h3>
-            <p style="color: #6b7280;">Direct, department-filtered communication channels between patients and
-                specialists.</p>
-            <a href="{{ url_for('login') }}" class="btn"
-                style="margin-top: 1rem; width: 100%; text-align: center;">Start Chat</a>
+            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Blood Bank Network
+            </h3>
+            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
+                Real-time blood availability tracking across our interconnected hospital network.
+            </p>
+            <a href="{{ url_for('blood_bank') }}"
+                style="color: #2563eb; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
+                Check Availability
+            </a>
         </div>
-        {% endif %}
+
+        <!-- Card 3: Secure Comm Center -->
+        <div
+            style="background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: transform 0.2s; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+            <div
+                style="width: 50px; height: 50px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                <i class="fas fa-comments" style="color: #16a34a; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Secure Comm Center
+            </h3>
+            <p style="color: #6b7280; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem; flex-grow: 1;">
+                Direct, department-filtered communication channels between patients and specialists.
+            </p>
+            <a href="{{ url_for('doctor_chat_view' if session.get('role') == 'doctor' else 'patient_chat') if session.get('user_id') else url_for('login') }}"
+                style="color: #7c3aed; font-weight: 600; text-decoration: none; font-size: 1rem; align-self: center;">
+                Start Chat
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}
