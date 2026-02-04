@@ -1,66 +1,170 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="text-gradient">Financials & Insurance</h1>
-<p style="color: #6b7280; margin-bottom: 2rem;">Manage your medical bills and insurance claims.</p>
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin: 0; font-size: 1.8rem; color: #1f2937; font-weight: 600;">Payments</h1>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="position: relative;">
+                <i class="fas fa-search"
+                    style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                <input type="text" placeholder="Search Appointments, Patients..."
+                    style="padding: 0.7rem 1rem 0.7rem 2.5rem; border: 1px solid #e5e7eb; border-radius: 8px; width: 300px; font-size: 0.9rem;">
+            </div>
+            <button style="background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 1.2rem;">
+                <i class="far fa-bell"></i>
+            </button>
+            <button style="background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 1.2rem;">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>
+    </div>
 
-<div class="glass-panel" style="padding: 0; overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead style="background: rgba(0, 114, 255, 0.05); border-bottom: 1px solid #e5e7eb;">
-            <tr>
-                <th style="padding: 1rem;">Date</th>
-                <th style="padding: 1rem;">Description</th>
-                <th style="padding: 1rem;">Amount</th>
-                <th style="padding: 1rem;">Status</th>
-                <th style="padding: 1rem;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if not invoices %}
-            <tr>
-                <td colspan="5" style="padding: 2rem; text-align: center; color: #9ca3af;">No invoices found.</td>
-            </tr>
-            {% else %}
-            {% for inv in invoices %}
-            <tr style="border-bottom: 1px solid #f3f4f6;">
-                <td style="padding: 1rem;">{{ inv.created_at[:10] if inv.created_at else 'N/A' }}</td>
-                <td style="padding: 1rem; font-weight: 500;">{{ inv.description }}</td>
-                <td style="padding: 1rem;">₹{{ inv.amount }}</td>
-                <td style="padding: 1rem;">
-                    <span class="status-badge"
-                        style="background: {{ '#d1fae5' if inv.insurance_claimed else '#fef3c7' if inv.status == 'paid' else '#fee2e2' }}; 
-                               color: {{ '#065f46' if inv.insurance_claimed else '#92400e' if inv.status == 'paid' else '#991b1b' }}">
-                        {{ 'Claimed' if inv.insurance_claimed else inv.status.upper() }}
-                    </span>
-                </td>
-                <td style="padding: 1rem; display: flex; gap: 0.5rem;">
-                    {% if inv.status == 'unpaid' and not inv.insurance_claimed %}
-                    <a href="{{ url_for('pay_invoice', invoice_id=inv.invoice_id) }}" class="btn"
-                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--primary); color: white; text-decoration: none; border-radius: 6px;">
-                        <i class="fas fa-credit-card"></i> Pay Now
-                    </a>
-                    <a href="{{ url_for('claim_insurance_route', invoice_id=inv.invoice_id) }}" class="btn"
-                        style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--secondary); color: white; text-decoration: none; border-radius: 6px;">
-                        <i class="fas fa-shield-alt"></i> Claim
-                    </a>
+    <!-- Welcome Banner -->
+    <div
+        style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="color: #065f46; font-size: 1.1rem; font-weight: 500;">
+            Welcome back, {{ session.user_name or 'Patient' }}!
+        </div>
+        <a href="{{ url_for('book_appointment') }}"
+            style="background: #10b981; color: white; padding: 0.7rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-plus"></i> Book Appointment
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="margin: 0; font-size: 1.3rem; color: #1f2937; font-weight: 600;">Payments & Invoices</h2>
+        </div>
+
+        <!-- Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Total Earnings -->
+            <div style="background: #f9fafb; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="color: #10b981; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">
+                            ₹{{ "%.2f"|format(paid_amount|default(0)) }}
+                        </div>
+                        <div style="color: #6b7280; font-size: 0.9rem;">Total Paid</div>
+                    </div>
+                    <div
+                        style="width: 50px; height: 50px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-money-bill-wave" style="color: #10b981; font-size: 1.3rem;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending -->
+            <div style="background: #f9fafb; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="color: #f59e0b; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;">
+                            ₹{{ "%.2f"|format(unpaid_amount|default(0)) }}
+                        </div>
+                        <div style="color: #6b7280; font-size: 0.9rem;">Pending</div>
+                    </div>
+                    <div
+                        style="width: 50px; height: 50px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-hourglass-half" style="color: #f59e0b; font-size: 1.3rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Table -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Invoice ID</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Patient</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Date</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Amount</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Status</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+                            Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if not invoices %}
+                    <tr>
+                        <td colspan="6" style="padding: 3rem; text-align: center; color: #9ca3af;">
+                            <i class="fas fa-file-invoice"
+                                style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                            No invoices found.
+                        </td>
+                    </tr>
                     {% else %}
-                    <span style="color: #9ca3af; font-size: 0.9rem;"><i class="fas fa-check"></i> Processed</span>
+                    {% for inv in invoices %}
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 1rem; color: #1f2937; font-weight: 500;">#{{ inv.invoice_id[:8] if
+                            inv.invoice_id else 'INV-000' }}</td>
+                        <td style="padding: 1rem; color: #6b7280;">{{ session.user_name or 'You' }}</td>
+                        <td style="padding: 1rem; color: #6b7280;">{{ inv.created_at[:10] if inv.created_at else 'N/A'
+                            }}</td>
+                        <td style="padding: 1rem; color: #1f2937; font-weight: 500;">₹{{ "%.2f"|format(inv.amount|float)
+                            }}</td>
+                        <td style="padding: 1rem;">
+                            {% if inv.insurance_claimed %}
+                            <span
+                                style="background: #d1fae5; color: #065f46; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                Claimed
+                            </span>
+                            {% elif inv.status == 'paid' %}
+                            <span
+                                style="background: #d1fae5; color: #065f46; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                Paid
+                            </span>
+                            {% else %}
+                            <span
+                                style="background: #fef3c7; color: #92400e; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if inv.status == 'unpaid' and not inv.insurance_claimed %}
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{{ url_for('pay_invoice', invoice_id=inv.invoice_id) }}"
+                                    style="width: 35px; height: 35px; background: #dbeafe; color: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#2563eb'; this.style.color='white';"
+                                    onmouseout="this.style.background='#dbeafe'; this.style.color='#2563eb';">
+                                    <i class="fas fa-credit-card"></i>
+                                </a>
+                                <a href="{{ url_for('claim_insurance_route', invoice_id=inv.invoice_id) }}"
+                                    style="width: 35px; height: 35px; background: #fef3c7; color: #f59e0b; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#f59e0b'; this.style.color='white';"
+                                    onmouseout="this.style.background='#fef3c7'; this.style.color='#f59e0b';">
+                                    <i class="fas fa-shield-alt"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <div
+                                style="width: 35px; height: 35px; background: #d1fae5; color: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
                     {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-</div>
-
-<div
-    style="margin-top: 2rem; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px; display: flex; align-items: start; gap: 1rem;">
-    <i class="fas fa-shield-alt" style="font-size: 2rem; color: #16a34a;"></i>
-    <div>
-        <h4 style="margin: 0 0 0.5rem 0; color: #166534;">Insurance Coverage Active</h4>
-        <p style="margin: 0; color: #15803d; font-size: 0.9rem;">Your account is linked to <strong>Global Health
-                Insurance</strong>. You can claim instantly for consultation fees.</p>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
