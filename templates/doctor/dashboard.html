@@ -252,19 +252,20 @@
                     {% else %}
                     {% for appt in active_queue %}
                     <tr style="border-bottom: 1px solid #f9fafb;">
-                        <td style="padding: 1rem 0;">
+                        <td style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 500; font-size: 0.9rem;">
+                            {{ appt.time.split(' ')[1] if ' ' in appt.time else appt.time }}
+                        </td>
+                        <td style="padding: 1rem 1.5rem;">
                             <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_name }}</div>
                             <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.patient_id }}</div>
-                            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 2px;">{{ appt.time.split(' ')[1]
-                                if ' ' in appt.time else appt.time }}</div>
                         </td>
-                        <td style="padding: 1rem 0;">
+                        <td style="padding: 1rem 1.5rem;">
                             <span
                                 class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
                                 {{ appt.status }}
                             </span>
                         </td>
-                        <td style="padding: 1rem 0; text-align: right;">
+                        <td style="padding: 1rem 1.5rem; text-align: right;">
                             <a href="{{ url_for('doctor_view_vault', patient_id=appt.patient_id) }}"
                                 style="background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; margin-right: 0.5rem;">
                                 History
