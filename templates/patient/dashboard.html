@@ -1,339 +1,289 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto;">
-
-    <!-- Top Stats Row -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Stat 1: Upcoming -->
-        <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem; position: relative; overflow: hidden;">
-            <div
-                style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #0284c7; font-size: 1.2rem;">
-                <i class="fas fa-calendar-alt"></i>
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin: 0; font-size: 1.8rem; color: #1f2937; font-weight: 600;">Patient Dashboard</h1>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="position: relative; cursor: pointer;">
+                <i class="fas fa-bell" style="font-size: 1.3rem; color: #6b7280;"></i>
+                {% if messages_count > 0 %}
+                <span
+                    style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">{{
+                    messages_count }}</span>
+                {% endif %}
             </div>
-            <div>
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Next Appointment</div>
-                {% set upcoming = appointments | selectattr('status', 'equalto', 'BOOKED') | first %}
-                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">
-                    {{ upcoming.appointment_date[5:] if upcoming and upcoming.appointment_date else 'No Upcoming' }}
-                </div>
+            <div
+                style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.1rem;">
+                {{ session.user_name[0] if session.user_name else 'P' }}
             </div>
         </div>
+    </div>
 
-        <!-- Stat 2: Check-In / Messages -->
-        <a href="{{ url_for('patient_assistant') }}" style="text-decoration: none;">
-            <div style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem; transition: transform 0.2s;"
-                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+    <!-- Main Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+
+        <!-- Left Column: Upcoming Appointments -->
+        <div>
+            <h2 style="font-size: 1.3rem; color: #1f2937; margin-bottom: 1.5rem; font-weight: 600;">Upcoming
+                Appointments</h2>
+
+            <div
+                style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 1.1rem; color: #374151; margin-bottom: 1.5rem; font-weight: 600;">Upcoming
+                    Appointments</h3>
+
+                {% if appointments %}
+                {% for appt in appointments[:3] %}
                 <div
-                    style="width: 48px; height: 48px; background: #fefce8; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706; font-size: 1.2rem;">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div>
-                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">AI Companion</div>
+                    style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #f9fafb; border-radius: 12px; margin-bottom: 1rem;">
+                    <!-- Date Badge -->
                     <div
-                        style="font-weight: 700; color: #1f2937; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        Chat Now
-                        {% if messages_count > 0 %}
+                        style="background: #3b82f6; color: white; border-radius: 10px; padding: 0.8rem; text-align: center; min-width: 60px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; line-height: 1;">{{
+                            appt.appointment_date[8:10] if appt.appointment_date else '?' }}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9; text-transform: uppercase;">{{
+                            appt.appointment_date[5:7] if appt.appointment_date else 'N/A' }}</div>
+                    </div>
+
+                    <!-- Doctor Avatar -->
+                    <div
+                        style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.2rem;">
+                        {{ appt.doctor_name[0] if appt.doctor_name else 'D' }}
+                    </div>
+
+                    <!-- Appointment Details -->
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.2rem;">
+                            {% if appt.appointment_date %}
+                            {{ appt.appointment_date[:10] }} at {{ appt.appointment_date[11:16] if
+                            appt.appointment_date|length > 10 else '10:00' }}
+                            {% else %}
+                            Date not set
+                            {% endif %}
+                        </div>
+                        <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                            {{ appt.doctor_name or 'Doctor' }} - {{ appt.specialization or 'General Practitioner' }}
+                        </div>
+                        <div
+                            style="font-size: 0.85rem; color: #9ca3af; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="far fa-clock"></i> Apil now
+                        </div>
+                    </div>
+
+                    <!-- Status & Action -->
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                        {% if appt.status == 'CHECKED-IN' %}
                         <span
-                            style="background: #ef4444; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 99px;">{{
-                            messages_count }}</span>
+                            style="background: #fef3c7; color: #d97706; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Check-In
+                        </span>
+                        {% elif appt.status == 'BOOKED' %}
+                        <span
+                            style="background: #dbeafe; color: #2563eb; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Booked
+                        </span>
+                        {% elif appt.status == 'CONSULTING' %}
+                        <span
+                            style="background: #fce7f3; color: #db2777; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Consulting
+                        </span>
+                        {% else %}
+                        <span
+                            style="background: #d1fae5; color: #059669; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> {{ appt.status }}
+                        </span>
                         {% endif %}
+                        <button
+                            style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 500;">
+                            View Details
+                        </button>
                     </div>
                 </div>
-            </div>
-        </a>
-
-        <!-- Stat 3: Test Results -->
-        <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
-            <div
-                style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #16a34a; font-size: 1.2rem;">
-                <i class="fas fa-file-medical-alt"></i>
-            </div>
-            <div>
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Test Results</div>
-                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">{{ new_results_count }} new</div>
-                {% if new_results_count > 0 %}
-                <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600; cursor: pointer; margin-top: 0.2rem;">
-                    View & Analyze &rarr;</div>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 2rem; color: #9ca3af;">
+                    <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>No upcoming appointments</p>
+                    <a href="{{ url_for('book_appointment') }}" class="btn btn-primary" style="margin-top: 1rem;">Book
+                        Appointment</a>
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Stat 4: Billing -->
-        <div
-            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+        <!-- Right Column: Health Overview -->
+        <div>
+            <h2 style="font-size: 1.3rem; color: #1f2937; margin-bottom: 1.5rem; font-weight: 600;">Health Overview</h2>
+
+            <!-- Health Metrics Card -->
             <div
-                style="width: 48px; height: 48px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 1.2rem;">
-                <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            <div>
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Billing Due</div>
-                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">₹{{ unpaid_balance }}</div>
-                {% if unpaid_balance > 0 %}
-                <a href="{{ url_for('patient_invoices') }}"
-                    style="font-size: 0.75rem; color: #dc2626; font-weight: 600; text-decoration: none; display: block; margin-top: 0.2rem;">Pay
-                    Now &rarr;</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Smart Action Strip -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
-        <!-- AI checkup -->
-        <div
-            style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #4f46e5, #6366f1); padding: 1.5rem; border-radius: 16px; color: white; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);">
-            <div>
-                <i class="fas fa-sparkles" style="font-size: 1.2rem; margin-bottom: 0.5rem; opacity: 0.9;"></i>
-                <div style="font-weight: 600; margin-bottom: 0.2rem;">AI Health Check</div>
-                <div style="font-size: 0.85rem; opacity: 0.9;">Analyze my recent symptoms</div>
-            </div>
-            <div style="align-self: flex-end; font-size: 1.2rem; opacity: 0.8;"><i class="fas fa-arrow-right"></i>
-            </div>
-        </div>
-
-        <!-- Emergency SOS -->
-        <div style="flex: 1; min-width: 200px; background: white; border: 2px solid #fee2e2; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.2s;"
-            onmouseover="this.style.borderColor='#ef4444'; this.style.background='#fef2f2'">
-            <div>
-                <i class="fas fa-ambulance" style="color: #ef4444; font-size: 1.2rem; margin-bottom: 0.5rem;"></i>
-                <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.2rem;">Emergency SOS</div>
-                <div style="font-size: 0.85rem; color: #6b7280;">Quick access to support</div>
-            </div>
-            <div style="align-self: flex-end; color: #ef4444;"><i class="fas fa-phone-alt"></i></div>
-        </div>
-
-        <!-- Upload Records -->
-        <a href="{{ url_for('patient_vault') }}" style="text-decoration: none; flex: 1; min-width: 200px;">
-            <div style="height: 100%; background: white; border: 1px solid #e5e7eb; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: background 0.2s;"
-                onmouseover="this.style.background='#f9fafb'">
-                <div>
-                    <i class="fas fa-cloud-upload-alt"
-                        style="color: #3b82f6; font-size: 1.2rem; margin-bottom: 0.5rem;"></i>
-                    <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.2rem;">Upload Records</div>
-                    <div style="font-size: 0.85rem; color: #6b7280;">Add lab reports or scans</div>
-                </div>
-                <div style="align-self: flex-end; color: #3b82f6;"><i class="fas fa-plus"></i></div>
-            </div>
-        </a>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-
-        <!-- Upcoming Appointment Card -->
-        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Upcoming Appointment</h3>
-                <span style="color: #6b7280; font-size: 0.9rem;"><i class="fas fa-chevron-down"></i></span>
-            </div>
-
-            {% if upcoming and upcoming.appointment_date and upcoming.doctor_id %}
-            <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem;">
-                <div
-                    style="width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; overflow: hidden; flex-shrink: 0;">
-                    <img src="https://ui-avatars.com/api/?name={{ upcoming.doctor_id }}&background=0D8ABC&color=fff"
-                        alt="Doctor" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div>
-                    <h2 style="margin: 0 0 0.25rem 0; font-size: 1.4rem; color: #111827;">Dr. {{
-                        upcoming.doctor_id.split('@')[0] | title }}</h2>
-                    <div style="color: #6b7280; margin-bottom: 0.5rem; font-size: 1rem;">Specialist</div>
-                    <div
-                        style="display: flex; align-items: center; gap: 0.5rem; background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; width: fit-content; font-size: 0.9rem; color: #4b5563;">
-                        <i class="far fa-clock"></i> {{ upcoming.appointment_date }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timeline Tracker -->
-            <div style="margin-bottom: 2rem; position: relative; padding: 0 1rem;">
-                <!-- Connector Line -->
-                <div
-                    style="position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e5e7eb; z-index: 0;">
+                style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <i class="fas fa-heartbeat" style="color: #ef4444; font-size: 1.3rem;"></i>
+                    <h3 style="font-size: 1.1rem; color: #374151; margin: 0; font-weight: 600;">BP</h3>
+                    <button onclick="document.getElementById('vitalsModal').style.display='flex'"
+                        style="margin-left: auto; background: none; border: none; color: #6b7280; cursor: pointer;">
+                        <i class="fas fa-edit"></i>
+                    </button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; position: relative; z-index: 1;">
-                    <!-- Step 1: Booked -->
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
-                            <i class="fas fa-check"></i>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <!-- Blood Pressure -->
+                    <div style="background: #fee2e2; border-radius: 12px; padding: 1.2rem; position: relative;">
+                        <div style="color: #dc2626; font-size: 2rem; font-weight: bold; margin-bottom: 0.3rem;">
+                            {{ vitals.bp.split('/')[0] if vitals.bp and '/' in vitals.bp else vitals.bp }}
+                            <span style="font-size: 0.9rem; font-weight: normal;">/{{ vitals.bp.split('/')[1] if
+                                vitals.bp and '/' in vitals.bp else '--' }}</span>
+                            <span style="font-size: 0.75rem; font-weight: normal; margin-left: 0.2rem;">mmHg</span>
                         </div>
-                        <div
-                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
-                            Booked</div>
+                        <div style="color: #991b1b; font-size: 0.85rem; font-weight: 500;">Blood Pressure</div>
                     </div>
 
-                    <!-- Step 2: Check-In -->
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
-                            <i class="fas fa-user-check"></i>
+                    <!-- Weight -->
+                    <div style="background: #dbeafe; border-radius: 12px; padding: 1.2rem;">
+                        <div style="color: #1d4ed8; font-size: 2rem; font-weight: bold; margin-bottom: 0.3rem;">
+                            {{ vitals.weight }}
+                            <span style="font-size: 0.75rem; font-weight: normal; margin-left: 0.2rem;">lbs</span>
                         </div>
-                        <div
-                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
-                            Check-In</div>
+                        <div style="color: #1e40af; font-size: 0.85rem; font-weight: 500;">Weight</div>
                     </div>
 
-                    <!-- Step 3: Consulting -->
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status in ['CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; font-size: 0.9rem;">
-                            <i class="fas fa-stethoscope"></i>
+                    <!-- Blood Sugar -->
+                    <div style="background: #d1fae5; border-radius: 12px; padding: 1.2rem;">
+                        <div style="color: #059669; font-size: 2rem; font-weight: bold; margin-bottom: 0.3rem;">
+                            {{ vitals.sugar }}
+                            <span style="font-size: 0.75rem; font-weight: normal; margin-left: 0.2rem;">mg/dL</span>
                         </div>
-                        <div
-                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status in ['CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 500;">
-                            Consulting</div>
-                    </div>
-
-                    <!-- Step 4: Completed -->
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; background: {{ '#3b82f6' if upcoming.status == 'COMPLETED' else '#e5e7eb' }}; font-size: 0.9rem;">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                        </div>
-                        <div
-                            style="font-size: 0.85rem; color: {{ '#1f2937' if upcoming.status == 'COMPLETED' else '#9ca3af' }}; font-weight: 500;">
-                            Completed</div>
+                        <div style="color: #047857; font-size: 0.85rem; font-weight: 500;">Blood Sugar</div>
                     </div>
                 </div>
-            </div>
 
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn"
-                    style="flex: 1; background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.8rem;">Reschedule</button>
-                <button class="btn btn-primary" style="flex: 1; padding: 0.8rem;">Join Video Call <i
-                        class="fas fa-video" style="margin-left: 0.5rem;"></i></button>
-            </div>
-            {% else %}
-            <div style="text-align: center; padding: 2rem; color: #6b7280;">
-                <i class="fas fa-calendar-check" style="font-size: 3rem; margin-bottom: 1rem; color: #d1d5db;"></i>
-                <p>No upcoming appointments.</p>
-                <a href="{{ url_for('book_appointment') }}" class="btn btn-primary" style="margin-top: 1rem;">Book
-                    Now</a>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Health Overview Card -->
-        <div
-            style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); position: relative;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Health Overview</h3>
-                    <span
-                        style="background: #e0e7ff; color: #4338ca; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 600;"><i
-                            class="fas fa-magic" style="margin-right: 4px;"></i> AI Analysis Ready</span>
-                </div>
-                <button onclick="document.getElementById('vitalsModal').style.display='flex'"
-                    style="background: none; border: none; cursor: pointer; color: #6b7280; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-edit"></i> Edit
+                <button
+                    style="background: #3b82f6; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; margin-top: 1.5rem; width: 100%; font-weight: 500; cursor: pointer;">
+                    View Full Report
                 </button>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
-                <div>
-                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Weight</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">{{ vitals.weight }} <span
-                            style="font-size: 1rem; color: #6b7280;">lbs</span></div>
-                </div>
-                <div>
-                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Blood Pressure</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">{{ vitals.bp }}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Blood Sugar</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">{{ vitals.sugar }} <span
-                            style="font-size: 1rem; color: #6b7280;">mg/dL</span></div>
-                </div>
-            </div>
-
-            <!-- Mock Chart -->
+            <!-- Patient Tracking Card -->
             <div
-                style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 5px;">
-                {% for i in range(15) %}
-                <div
-                    style="width: 100%; background: linear-gradient(to top, #e0f2fe, #38bdf8); border-radius: 4px; height: {{ [40, 50, 45, 60, 55, 70, 65, 80, 75, 60, 50, 65, 70, 85, 90][i] }}%;">
+                style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; color: #374151; margin: 0; font-weight: 600;">Patient Tracking</h3>
+                    {% if upcoming and upcoming.status == 'COMPLETED' %}
+                    <span
+                        style="background: #d1fae5; color: #059669; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                        COMPLETED
+                    </span>
+                    {% endif %}
                 </div>
-                {% endfor %}
+
+                {% if upcoming %}
+                <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    With {{ upcoming.doctor_name or 'Doctor' }}
+                </div>
+                <div
+                    style="color: #9ca3af; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 2rem;">
+                    <i class="far fa-clock"></i> {{ upcoming.appointment_date[:10] if upcoming.appointment_date else
+                    'N/A' }}
+                </div>
+                {% else %}
+                <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    With None
+                </div>
+                <div
+                    style="color: #9ca3af; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 2rem;">
+                    <i class="far fa-clock"></i> N/A
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Bottom Row Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-
-        <!-- Recent Test Results -->
-        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Recent Test Results</h3>
-                <a href="{{ url_for('patient_vault') }}"
-                    style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">View All</a>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                {% if recent_results %}
-                {% for item in recent_results %}
-                <a href="{{ url_for('uploaded_file', filename=item.file_name) }}" target="_blank"
-                    style="text-decoration: none;">
-                    <div style="display: flex; align-items: center; padding: 1rem; background: #f9fafb; border-radius: 12px; gap: 1rem; transition: background 0.2s;"
-                        onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-                        <div
-                            style="width: 40px; height: 40px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #374151;">{{ item.description }}</div>
-                            <div style="font-size: 0.85rem; color: #9ca3af;">{{ item.upload_date }}</div>
-                        </div>
-                        <div style="color: #9ca3af; font-size: 0.9rem;">View <i class="fas fa-chevron-right"
-                                style="margin-left: 0.5rem;"></i></div>
-                    </div>
-                </a>
-                {% endfor %}
-                {% else %}
-                <p style="color: #9ca3af; text-align: center; padding: 1rem;">No recent test results uploaded.</p>
-                {% endif %}
-            </div>
+    <!-- Patient Tracking Timeline (Full Width) -->
+    <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.3rem; color: #1f2937; margin: 0; font-weight: 600;">Patient Tracking</h2>
+            {% if upcoming and upcoming.status == 'COMPLETED' %}
+            <span
+                style="background: #d1fae5; color: #059669; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">
+                COMPLETED
+            </span>
+            {% endif %}
         </div>
 
-        <!-- Medical History -->
-        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Medical History</h3>
-                <!-- View All Link (Hidden for now as distinct page doesn't exist, but ready for expansion) -->
-                <!-- <a href="#" style="font-size: 0.85rem; color: #3b82f6; text-decoration: none;">Full Record</a> -->
-                <!-- Add Condition Form -->
-                <form action="{{ url_for('add_medical_history') }}" method="POST" style="display: flex; gap: 0.5rem;">
-                    <input type="text" name="condition" placeholder="Add condition..." required
-                        style="padding: 0.4rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9rem;">
-                    <button type="submit"
-                        style="background: #2563eb; color: white; border: none; border-radius: 6px; padding: 0 0.8rem; cursor: pointer;">+</button>
-                </form>
+        <!-- Timeline -->
+        <div style="position: relative; padding: 2rem 0;">
+            <!-- Progress Line -->
+            <div
+                style="position: absolute; top: 50%; left: 10%; right: 10%; height: 4px; background: #e5e7eb; transform: translateY(-50%); z-index: 0;">
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 250px; overflow-y: auto;">
-                {% if medical_history %}
-                {% for condition in medical_history %}
-                <div
-                    style="display: flex; align-items: center; padding: 0.5rem 0; gap: 1rem; border-bottom: 1px solid #f3f4f6;">
+            {% if upcoming %}
+            <!-- Active Progress Line -->
+            <div
+                style="position: absolute; top: 50%; left: 10%; 
+                {% if upcoming.status == 'COMPLETED' %}
+                    width: 80%;
+                {% elif upcoming.status == 'CONSULTING' %}
+                    width: 53%;
+                {% elif upcoming.status == 'CHECKED-IN' %}
+                    width: 27%;
+                {% else %}
+                    width: 0%;
+                {% endif %}
+                height: 4px; background: #3b82f6; transform: translateY(-50%); z-index: 0; transition: width 0.5s ease;">
+            </div>
+            {% endif %}
+
+            <div
+                style="display: flex; justify-content: space-between; position: relative; z-index: 1; max-width: 80%; margin: 0 auto;">
+                <!-- Step 1: Booked -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
                     <div
-                        style="width: 36px; height: 36px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #2563eb;">
-                        <i class="fas fa-notes-medical"></i>
+                        style="width: 60px; height: 60px; border-radius: 50%; background: {{ '#3b82f6' if upcoming and upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <i class="fas fa-calendar-check" style="font-size: 1.5rem;"></i>
                     </div>
-                    <div style="flex: 1; font-weight: 500; color: #374151;">{{ condition }}</div>
+                    <div
+                        style="font-size: 0.95rem; color: {{ '#1f2937' if upcoming and upcoming.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 600;">
+                        Booked</div>
                 </div>
-                {% endfor %}
-                {% else %}
-                <p style="color: #9ca3af; text-align: center; padding: 1rem;">No medical history recorded.</p>
-                {% endif %}
+
+                <!-- Step 2: Check-In -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div
+                        style="width: 60px; height: 60px; border-radius: 50%; background: {{ '#3b82f6' if upcoming and upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <i class="fas fa-clipboard-check" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div
+                        style="font-size: 0.95rem; color: {{ '#1f2937' if upcoming and upcoming.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 600;">
+                        Check-In</div>
+                </div>
+
+                <!-- Step 3: Consulting -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div
+                        style="width: 60px; height: 60px; border-radius: 50%; background: {{ '#3b82f6' if upcoming and upcoming.status in ['CONSULTING', 'COMPLETED'] else '#e5e7eb' }}; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <i class="fas fa-user-md" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div
+                        style="font-size: 0.95rem; color: {{ '#1f2937' if upcoming and upcoming.status in ['CONSULTING', 'COMPLETED'] else '#9ca3af' }}; font-weight: 600;">
+                        Consulting</div>
+                </div>
+
+                <!-- Step 4: Completed -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8rem;">
+                    <div
+                        style="width: 60px; height: 60px; border-radius: 50%; background: {{ '#10b981' if upcoming and upcoming.status == 'COMPLETED' else '#e5e7eb' }}; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div
+                        style="font-size: 0.95rem; color: {{ '#1f2937' if upcoming and upcoming.status == 'COMPLETED' else '#9ca3af' }}; font-weight: 600;">
+                        Completed</div>
+                </div>
             </div>
         </div>
-
     </div>
 </div>
 
