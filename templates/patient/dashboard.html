@@ -1,52 +1,214 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="text-gradient">My Journey</h1>
-<p style="color: #6b7280;">Track your upcoming appointments and status.</p>
+<div style="max-width: 1200px; margin: 0 auto;">
 
-{% if not appointments %}
-<div class="glass-card" style="margin-top: 2rem; text-align: center;">
-    <h3>No appointments found.</h3>
-    <p>Book your first consultation to start your journey.</p>
-    <a href="{{ url_for('book_appointment') }}" class="btn btn-primary" style="margin-top: 1rem;">Book Appointment</a>
-</div>
-{% else %}
-{% for appt in appointments %}
-<div class="glass-card" style="margin-top: 2rem;">
-    <div style="display: flex; justify-content: space-between; align-items: start;">
-        <div>
-            <h3 style="margin: 0 0 0.5rem 0;">With {{ appt.doctor_name }}</h3>
-            <p style="color: #6b7280; margin: 0;"><i class="far fa-clock"></i> {{ appt.time }}</p>
-        </div>
+    <!-- Top Stats Row -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Stat 1: Upcoming -->
         <div
-            class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
-            {{ appt.status }}
+            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+            <div
+                style="width: 48px; height: 48px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #0284c7; font-size: 1.2rem;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Next Appointment</div>
+                {% set upcoming = appointments | selectattr('status', 'equalto', 'BOOKED') | first %}
+                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">
+                    {{ upcoming.appointment_date[5:] if upcoming else 'No Upcoming' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat 2: Prescriptions -->
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+            <div
+                style="width: 48px; height: 48px; background: #fefce8; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706; font-size: 1.2rem;">
+                <i class="fas fa-pills"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Prescriptions</div>
+                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">2 active</div>
+            </div>
+        </div>
+
+        <!-- Stat 3: Test Results -->
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+            <div
+                style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #16a34a; font-size: 1.2rem;">
+                <i class="fas fa-file-medical-alt"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Test Results</div>
+                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">5 new</div>
+            </div>
+        </div>
+
+        <!-- Stat 4: Billing -->
+        <div
+            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: flex-start; gap: 1rem;">
+            <div
+                style="width: 48px; height: 48px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 1.2rem;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Billing</div>
+                <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">Due</div>
+            </div>
         </div>
     </div>
 
-    <div class="timeline">
-        <div
-            class="step {% if appt.status in ['BOOKED', 'CHECKED-IN', 'CONSULTING', 'COMPLETED'] %}completed{% endif %}">
-            <i class="fas fa-calendar-check"></i>
-            <small>Booked</small>
+    <!-- Main Content Grid -->
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+        <!-- Upcoming Appointment Card -->
+        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Upcoming Appointment</h3>
+                <span style="color: #6b7280; font-size: 0.9rem;"><i class="fas fa-chevron-down"></i></span>
+            </div>
+
+            {% if upcoming %}
+            <div style="display: flex; gap: 1.5rem; align-items: center; margin-bottom: 2rem;">
+                <div
+                    style="width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; overflow: hidden; flex-shrink: 0;">
+                    <img src="https://ui-avatars.com/api/?name={{ upcoming.doctor_id }}&background=0D8ABC&color=fff"
+                        alt="Doctor" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div>
+                    <h2 style="margin: 0 0 0.25rem 0; font-size: 1.4rem; color: #111827;">Dr. {{
+                        upcoming.doctor_id.split('@')[0] | title }}</h2>
+                    <div style="color: #6b7280; margin-bottom: 0.5rem; font-size: 1rem;">Specialist</div>
+                    <div
+                        style="display: flex; align-items: center; gap: 0.5rem; background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; width: fit-content; font-size: 0.9rem; color: #4b5563;">
+                        <i class="far fa-clock"></i> {{ upcoming.appointment_date }}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                <i class="fas fa-calendar-check" style="font-size: 3rem; margin-bottom: 1rem; color: #d1d5db;"></i>
+                <p>No upcoming appointments.</p>
+                <a href="{{ url_for('book_appointment') }}" class="btn btn-primary" style="margin-top: 1rem;">Book
+                    Now</a>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn"
+                    style="flex: 1; background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.8rem;">Reschedule</button>
+                <button class="btn btn-primary" style="flex: 1; padding: 0.8rem;">Join Video Call <i
+                        class="fas fa-video" style="margin-left: 0.5rem;"></i></button>
+            </div>
         </div>
-        <div
-            class="step {% if appt.status in ['CHECKED-IN', 'CONSULTING', 'COMPLETED'] %}completed{% elif appt.status == 'BOOKED' %}active{% endif %}">
-            <i class="fas fa-hospital-user"></i>
-            <small>Check-In</small>
-        </div>
-        <div
-            class="step {% if appt.status in ['CONSULTING', 'COMPLETED'] %}completed{% elif appt.status == 'CHECKED-IN' %}active{% endif %}">
-            <i class="fas fa-stethoscope"></i>
-            <small>Consulting</small>
-        </div>
-        <div
-            class="step {% if appt.status == 'COMPLETED' %}completed{% elif appt.status == 'CONSULTING' %}active{% endif %}">
-            <i class="fas fa-check-circle"></i>
-            <small>Completed</small>
+
+        <!-- Health Overview Chart -->
+        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Health Overview</h3>
+                <span style="color: #6b7280; font-size: 0.9rem;"><i class="fas fa-ellipsis-h"></i></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                <div>
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Weight</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">135 <span
+                            style="font-size: 1rem; color: #6b7280;">lbs</span></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Blood Pressure</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">120/80</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.25rem;">Blood Sugar</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">98 <span
+                            style="font-size: 1rem; color: #6b7280;">mg/dL</span></div>
+                </div>
+            </div>
+
+            <!-- Mock Chart -->
+            <div
+                style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: space-between; gap: 5px;">
+                {% for i in range(15) %}
+                <div
+                    style="width: 100%; background: linear-gradient(to top, #e0f2fe, #38bdf8); border-radius: 4px; height: {{ [40, 50, 45, 60, 55, 70, 65, 80, 75, 60, 50, 65, 70, 85, 90][i] }}%;">
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
+
+    <!-- Bottom Row Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+        <!-- Recent Test Results -->
+        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Recent Test Results</h3>
+                <a href="{{ url_for('patient_vault') }}"
+                    style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">View All</a>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {% for item in ['Cholesterol', 'Blood Count', 'Sugar Level'] %}
+                <div
+                    style="display: flex; align-items: center; padding: 1rem; background: #f9fafb; border-radius: 12px; gap: 1rem;">
+                    <div
+                        style="width: 40px; height: 40px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #374151;">{{ item }}</div>
+                        <div style="font-size: 0.85rem; color: #9ca3af;">Results Available</div>
+                    </div>
+                    <div style="color: #9ca3af; font-size: 0.9rem;">March 2026 <i class="fas fa-chevron-right"
+                            style="margin-left: 0.5rem;"></i></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Medical History -->
+        <div style="background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: #1f2937; font-size: 1.2rem;">Medical History</h3>
+                <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 0.9rem;">View All</a>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div
+                    style="display: flex; align-items: center; padding: 0.5rem 0; gap: 1rem; border-bottom: 1px solid #f3f4f6;">
+                    <div
+                        style="width: 36px; height: 36px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div style="flex: 1; font-weight: 500; color: #374151;">Hypertension</div>
+                    <i class="fas fa-chevron-right" style="color: #d1d5db;"></i>
+                </div>
+                <div
+                    style="display: flex; align-items: center; padding: 0.5rem 0; gap: 1rem; border-bottom: 1px solid #f3f4f6;">
+                    <div
+                        style="width: 36px; height: 36px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                        <i class="fas fa-allergies"></i>
+                    </div>
+                    <div style="flex: 1; font-weight: 500; color: #374151;">Penicillin Allergy</div>
+                    <i class="fas fa-chevron-right" style="color: #d1d5db;"></i>
+                </div>
+                <div style="display: flex; align-items: center; padding: 0.5rem 0; gap: 1rem;">
+                    <div
+                        style="width: 36px; height: 36px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div style="flex: 1; font-weight: 500; color: #374151;">Annual Checkup</div>
+                    <i class="fas fa-chevron-right" style="color: #d1d5db;"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
-{% endfor %}
-{% endif %}
 {% endblock %}
