@@ -250,10 +250,27 @@
                                 style="background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; margin-right: 0.5rem;">
                                 History
                             </a>
+
+                            {% if appt.status == 'BOOKED' %}
                             <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
-                                style="background: #2563eb; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none;">
-                                Update
+                                style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-check-circle"></i> Check In
                             </a>
+                            {% elif appt.status == 'CHECKED-IN' %}
+                            <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                style="background: #2563eb; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-stethoscope"></i> Start Consult
+                            </a>
+                            {% elif appt.status == 'CONSULTING' %}
+                            <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                style="background: #f59e0b; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-flag-checkered"></i> Complete
+                            </a>
+                            {% else %}
+                            <span style="color: #9ca3af; font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                                <i class="fas fa-check"></i> Done
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
