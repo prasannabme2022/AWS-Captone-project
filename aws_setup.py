@@ -558,16 +558,14 @@ def get_patient_appointments(patient_email):
         return []
 
 def get_doctor_appointments(doctor_email):
-    """Get all appointments for a doctor (Demo: Returns ALL appointments)"""
+    """Get all appointments for a specific doctor"""
     try:
-        # DEMO MODE: Showing all appointments so you can see them regardless of login email
-        response = appointments_table.scan()
+        # Filter appointments by doctor email for privacy
+        response = appointments_table.scan(
+            FilterExpression='doctor_email = :email',
+            ExpressionAttributeValues={':email': doctor_email}
+        )
         
-        # Original Filtered Logic (Commented out for demo fix)
-        # response = appointments_table.scan(
-        #     FilterExpression='doctor_email = :email',
-        #     ExpressionAttributeValues={':email': doctor_email}
-        # )
         appointments = [deserialize_item(item) for item in response.get('Items', [])]
         
         # Enrich with patient details
