@@ -32,7 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:050690756868:Medtrack_cloud_enabled_healthcare_management')
+SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:ap-southeast-2:050690756868:Medtrack_cloud_enabled_healthcare_management')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -40,8 +40,17 @@ logger = logging.getLogger(__name__)
 
 # Initialize AWS clients
 try:
+    # Smart SNS Client Initialization
+    # If ARN has a region (arn:aws:sns:REGION:...), use it.
+    sns_region = AWS_REGION
+    if 'arn:aws:sns:' in SNS_TOPIC_ARN:
+        try:
+            sns_region = SNS_TOPIC_ARN.split(':')[3]
+        except:
+            pass
+
     dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
-    sns_client = boto3.client('sns', region_name=AWS_REGION)
+    sns_client = boto3.client('sns', region_name=sns_region)
     
     # Table configurations
     TABLES_CONFIG = [
@@ -1867,6 +1876,27 @@ def api_ai_chat():
         
     return jsonify({'reply': reply})
 
+
+@app.route('/debug/sns')
+def debug_sns():
+    """Manual trigger to test SNS"""
+    if 'user_id' not in session:
+        return "Please login first to test SNS with your email."
+        
+    email = session['user_id']
+    try:
+        # 1. Force Subscribe
+        subscribe_email(email)
+        
+        # 2. Send Test
+        send_email_notification(
+            email, 
+            "MedTrack SNS Test", 
+            f"This is a test message sent at {get_current_datetime()} to verify your connection."
+        )
+        return f"SNS Test Sent to {email}. Check your inbox (and spam) for a 'Subscription Confirmation' link or the test message."
+    except Exception as e:
+        return f"SNS Failure: {e}"
 
 
 if __name__ == '__main__':
