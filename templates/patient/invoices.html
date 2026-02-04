@@ -114,8 +114,8 @@
                         <td style="padding: 1rem; color: #1f2937; font-weight: 500;">#{{ inv.invoice_id[:8] if
                             inv.invoice_id else 'INV-000' }}</td>
                         <td style="padding: 1rem; color: #6b7280;">{{ session.user_name or 'You' }}</td>
-                        <td style="padding: 1rem; color: #6b7280;">{{ inv.created_at[:10] if inv.created_at else 'N/A'
-                            }}</td>
+                        <td style="padding: 1rem; color: #6b7280;">{{ (inv.created_at|string)[:10] if inv.created_at
+                            else 'N/A' }}</td>
                         <td style="padding: 1rem; color: #1f2937; font-weight: 500;">₹{{ "%.2f"|format(inv.amount|float)
                             }}</td>
                         <td style="padding: 1rem;">
