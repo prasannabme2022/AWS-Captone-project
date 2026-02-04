@@ -198,6 +198,55 @@ def send_sms_notification(phone_number, message):
         logger.error(f"Failed to send SMS to {phone_number}: {e}")
         return False
 
+def notify_appointment_status_change(patient_email, status, appointment_id=None, doctor_name=None):
+    """Send SNS notification when appointment status changes in patient tracking system"""
+    try:
+        # Status-specific messages
+        status_messages = {
+            'BOOKED': {
+                'subject': 'Appointment Confirmed - MedTrack',
+                'message': f'Your appointment has been successfully booked. Appointment ID: {appointment_id or "N/A"}. Please arrive 15 minutes early for check-in.'
+            },
+            'CHECKED-IN': {
+                'subject': 'Checked In - MedTrack',
+                'message': f'You have been checked in for your appointment. Please wait in the designated area. The doctor will see you shortly.'
+            },
+            'CONSULTING': {
+                'subject': 'Consultation Started - MedTrack',
+                'message': f'Your consultation with {doctor_name or "the doctor"} has started. Please proceed to the consultation room.'
+            },
+            'COMPLETED': {
+                'subject': 'Appointment Completed - MedTrack',
+                'message': f'Your consultation is complete. An invoice has been generated. Thank you for choosing MedTrack!'
+            }
+        }
+        
+        notification_data = status_messages.get(status)
+        if notification_data:
+            # Send notification via SNS Topic
+            send_notification(
+                message=notification_data['message'],
+                subject=notification_data['subject']
+            )
+            
+            # Also send email notification if available
+            if patient_email:
+                send_email_notification(
+                    email=patient_email,
+                    subject=notification_data['subject'],
+                    message=notification_data['message']
+                )
+            
+            logger.info(f"Status change notification sent for {patient_email}: {status}")
+            return True
+        else:
+            logger.warning(f"Unknown status for notification: {status}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Failed to send status change notification: {e}")
+        return False
+
 def notify_appointment_created(patient_email, doctor_name, appointment_date, patient_phone=None):
     """Send appointment confirmation via email and SMS"""
     subject = "MedTrack - Appointment Confirmed"
@@ -429,6 +478,14 @@ def create_appointment(patient_email, doctor_email, appointment_date, symptoms, 
         send_notification(
             f"New appointment booked by {patient_name} with Dr. {doctor_name} on {appointment_date}",
             "New Appointment Booked"
+        )
+        
+        # Send patient tracking notification
+        notify_appointment_status_change(
+            patient_email=patient_email,
+            status='BOOKED',
+            appointment_id=appointment_id,
+            doctor_name=doctor_name
         )
         
         logger.info(f"Appointment created: {appointment_id}")
@@ -1212,7 +1269,9 @@ def advance_status(appt_id):
                     # Notify patient
                     notify_appointment_status_change(
                         patient_email=appt.get('patient_id'),
-                        status='COMPLETED'
+                        status='COMPLETED',
+                        appointment_id=appt_id,
+                        doctor_name=session.get('user_name', 'Doctor')
                     )
                 else:
                     flash('Appointment completed but invoice generation failed', 'warning')
@@ -1220,7 +1279,9 @@ def advance_status(appt_id):
                 flash(f'Status updated to {new_status}', 'success')
                 notify_appointment_status_change(
                     patient_email=appt.get('patient_id'),
-                    status=new_status
+                    status=new_status,
+                    appointment_id=appt_id,
+                    doctor_name=session.get('user_name', 'Doctor')
                 )
         else:
             flash('Appointment already completed', 'info')
