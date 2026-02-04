@@ -1511,11 +1511,43 @@ def doctor_chat_view():
     departments = ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General Medicine']
     return render_template('doctor/chat.html', departments=departments)
 
-@app.route('/patient_vault')
+@app.route('/patient_vault', methods=['GET', 'POST'])
 def patient_vault():
     if 'user_id' not in session or session.get('role') != 'patient':
         flash('Please login first.', 'error')
         return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'error')
+            return redirect(request.url)
+            
+        file = request.files['file']
+        description = request.form.get('description', 'Patient Upload')
+        
+        if file.filename == '':
+            flash('No selected file', 'error')
+            return redirect(request.url)
+            
+        if file:
+            filename = secure_filename(file.filename)
+            
+            # Save file locally for demo viewing
+            upload_folder = os.path.join(os.getcwd(), 'uploads')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            file.save(os.path.join(upload_folder, filename))
+            
+            # Mock URL for demo
+            file_url = f"https://s3.amazonaws.com/medtrack-vault/{filename}"
+            
+            # Add to vault
+            if add_to_medical_vault(session['user_id'], filename, 'Patient Upload', file_url, description):
+                flash('Medical record uploaded successfully', 'success')
+            else:
+                flash('Error uploading file', 'error')
+                
+            return redirect(url_for('patient_vault'))
     
     vault_items = get_patient_vault(session['user_id'])
     return render_template('patient/vault.html', records=vault_items)
