@@ -1078,7 +1078,7 @@ def patient_dashboard():
     
     # 4. Fetch Vitals & Medical History from Patient Profile
     try:
-        response = patients_table.get_item(Key={'patient_id': user_id})
+        response = patients_table.get_item(Key={'email': user_id})
         patient_data = response.get('Item', {})
         vitals = patient_data.get('vitals', {'weight': '--', 'bp': '--/--', 'sugar': '--'})
         medical_history = patient_data.get('medical_history', [])
@@ -1107,7 +1107,7 @@ def update_vitals():
     
     try:
         patients_table.update_item(
-            Key={'patient_id': session['user_id']},
+            Key={'email': session['user_id']},
             UpdateExpression="SET vitals = :v",
             ExpressionAttributeValues={
                 ':v': {'weight': weight, 'bp': bp, 'sugar': sugar}
@@ -1129,7 +1129,7 @@ def add_medical_history():
         try:
             # Append to list (if list exists), else create new list
             patients_table.update_item(
-                Key={'patient_id': session['user_id']},
+                Key={'email': session['user_id']},
                 UpdateExpression="SET medical_history = list_append(if_not_exists(medical_history, :empty_list), :c)",
                 ExpressionAttributeValues={
                     ':c': [condition],
