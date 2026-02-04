@@ -1061,6 +1061,10 @@ def patient_dashboard():
     # 1. Appointments (Sorted by date, earliest first)
     appointments = get_patient_appointments(user_id)
     appointments.sort(key=lambda x: x.get('appointment_date') or '', reverse=False)
+    print(f"DEBUG: Appointments for {user_id}: {appointments}") 
+    
+    # Calculate upcoming appointment (First BOOKED appointment)
+    upcoming_appointment = next((a for a in appointments if a.get('status') == 'BOOKED'), None)
     
     # 2. Billing: Calculate unpaid balance
     invoices = get_patient_invoices(user_id)
@@ -1085,6 +1089,7 @@ def patient_dashboard():
 
     return render_template('patient/dashboard.html', 
                          appointments=appointments,
+                         upcoming=upcoming_appointment, # Pass explicit upcoming appt
                          unpaid_balance=unpaid_balance,
                          prescriptions_count=prescriptions_count,
                          recent_results=recent_results[:3],

@@ -15,7 +15,7 @@
             </div>
             <div>
                 <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 0.2rem;">Next Appointment</div>
-                {% set upcoming = appointments | selectattr('status', 'equalto', 'BOOKED') | first %}
+
                 <div style="font-weight: 700; color: #1f2937; font-size: 1.1rem;">
                     {{ upcoming.appointment_date[5:] if upcoming and upcoming.appointment_date else 'No Upcoming' }}
                 </div>
