@@ -1288,8 +1288,10 @@ def doctor_dashboard():
     
     appointments = get_doctor_appointments(session['user_id'])
     
-    # Calculate stats
-    today_str = datetime.now().strftime('%Y-%m-%d')
+    # Calculate stats using IST (UTC+5:30)
+    from datetime import timedelta
+    ist_now = datetime.utcnow() + timedelta(hours=5, minutes=30)
+    today_str = ist_now.strftime('%Y-%m-%d')
     today_appointments = [a for a in appointments if (a.get('appointment_date') or '').startswith(today_str)]
     
     # Active Queue: Include ALL active appointments regardless of date to ensure no one is missed
@@ -1333,7 +1335,7 @@ def doctor_dashboard():
                          stats=stats,
                          today_appointments=today_appointments,
                          next_patient=next_patient,
-                         now_date=datetime.now().strftime('%d %b, %Y'),
+                         now_date=ist_now.strftime('%d %b, %Y'),
                          alerts=[{'group': 'O-', 'units': 2}])
 
 @app.route('/doctor/patients')
