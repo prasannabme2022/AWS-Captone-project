@@ -271,26 +271,6 @@ Thank you for choosing MedTrack!
         sms_message = f"MedTrack: Appointment with Dr. {doctor_name} on {appointment_date}. Arrive 10 min early."
         send_sms_notification(patient_phone, sms_message)
 
-def notify_appointment_status_change(patient_email, status, patient_phone=None):
-    """Notify patient of appointment status change"""
-    subject = f"MedTrack - Appointment {status}"
-    message = f"""
-Dear Patient,
-
-Your appointment status has been updated to: {status}
-
-Please check your dashboard for details.
-
-Thank you,
-MedTrack Team
-    """.strip()
-    
-    send_email_notification(patient_email, subject, message)
-    
-    if patient_phone and status in ['CHECKED-IN', 'CONSULTING']:
-        sms_message = f"MedTrack: Your appointment is now {status}."
-        send_sms_notification(patient_phone, sms_message)
-
 
 # ============================================
 # PATIENT MANAGEMENT
