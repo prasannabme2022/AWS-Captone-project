@@ -1282,9 +1282,9 @@ def doctor_dashboard():
     today_str = datetime.now().strftime('%Y-%m-%d')
     today_appointments = [a for a in appointments if (a.get('appointment_date') or '').startswith(today_str)]
     
-    # Active Queue: Filter for today's active appointments (Booked, Checked-In, Consulting)
-    active_queue = [a for a in today_appointments if a.get('status') in ['BOOKED', 'CHECKED-IN', 'CONSULTING']]
-    # Sort by time
+    # Active Queue: Include ALL active appointments regardless of date to ensure no one is missed
+    active_queue = [a for a in appointments if a.get('status') in ['BOOKED', 'CHECKED-IN', 'CONSULTING']]
+    # Sort by time (Oldest first)
     active_queue.sort(key=lambda x: x.get('appointment_date', ''))
     
     # Calculate stats
