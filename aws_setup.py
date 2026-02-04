@@ -841,14 +841,24 @@ def get_mood_history(patient_email):
 
 def get_chatbot_response(patient_email, message):
     """
-    AI Chatbot response generator using AWS Bedrock (Claude)
+    AI Chatbot response generator using AWS Bedrock (Claude) with Enhanced Fallback
     """
+    # Try to get patient name for personalization
+    patient_name = "there"
+    try:
+        if patient_email:
+            p = get_patient(patient_email)
+            if p and 'name' in p:
+                patient_name = p['name'].split()[0] # First name
+    except:
+        pass
+
     # 1. Try Bedrock AI
     try:
         import json
         bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
         
-        prompt_data = f"\n\nHuman: You are a helpful medical assistant for MedTrack. Answer friendly and concisely.\nUser Question: {message}\n\nAssistant:"
+        prompt_data = f"\n\nHuman: You are Dr. AI, a helpful medical assistant for MedTrack. The user is {patient_name}. Answer friendly, concisely, and professionally.\nUser Question: {message}\n\nAssistant:"
         
         body = json.dumps({
             "prompt": prompt_data,
@@ -868,28 +878,60 @@ def get_chatbot_response(patient_email, message):
         return response_body.get('completion', '').strip()
         
     except Exception as e:
-        logger.warning(f"Bedrock AI unavailable ({e}), falling back to rules.")
+        logger.warning(f"Bedrock AI unavailable ({e}), falling back to enhanced rules.")
 
-    # 2. Rule-based Fallback
-    message = message.lower()
+    # 2. Enhanced Rule-based Fallback
+    msg = message.lower()
     
-    if 'appointment' in message or 'book' in message:
-        return "You can book an appointment by clicking on 'Book Now' in the sidebar. We have specialists available across various departments."
-    
-    elif 'headache' in message or 'fever' in message or 'pain' in message:
-        return "I'm sorry to hear that. Please track your symptoms in the dashboard and consult a doctor if it persists. Would you like to check available slots?"
-    
-    elif 'report' in message or 'result' in message:
-        return "You can view your medical reports in the 'Medical Vault' section. Ensure all your documents are securely uploaded there."
-    
-    elif 'hello' in message or 'hi' in message:
-        return "Hello! I am your MedTrack AI Assistant. How can I help you with your health journey today?"
-    
-    elif 'contact' in message or 'emergency' in message:
-        return "For emergencies, please use the SOS button in the sidebar or call 102 immediately."
+    # Greetings & Small Talk
+    if any(x in msg for x in ['hello', 'hi', 'hey', 'greetings', 'morning', 'evening']):
+        return f"Hello {patient_name}! I'm your MedTrack Health Assistant. How are you feeling today?"
+        
+    elif any(x in msg for x in ['thank', 'thanks', 'cool', 'good', 'great']):
+        return "You're very welcome! I'm here 24/7 if you need anything else to stay healthy."
+
+    # App Navigation / Features
+    elif any(x in msg for x in ['appointment', 'book', 'schedule', 'doctor', 'consult']):
+        return "To book a consultation, click the **'Book Now'** button in the sidebar. We have specialists in Cardiology, Neurology, and General Medicine available today."
+        
+    elif any(x in msg for x in ['report', 'result', 'lab', 'test', 'upload', 'vault']):
+        return "You can manage all your documents in the **Medical Vault**. It's secure and accessible by your doctor during consultations."
+        
+    elif any(x in msg for x in ['invoice', 'bill', 'payment', 'insurance', 'cost']):
+        return "You can view and pay your bills in the **Invoices** section. Insurance claims can also be submitted directly from there."
+
+    # Symptom Analysis (Simulated Medical Intelligence)
+    elif any(x in msg for x in ['headache', 'migraine', 'dizzy']):
+        return "Headaches can be caused by dehydration, stress, or lack of sleep. \n\n**Recommendation:**\n1. Drink a glass of water.\n2. Rest in a dark, quiet room.\n3. Monitor your BP in the dashboard.\n\nif it persists for >24 hours, please book an appointment."
+        
+    elif any(x in msg for x in ['fever', 'cold', 'flu', 'cough', 'sneeze', 'throat']):
+        return f"It sounds like a viral infection, {patient_name}. \n\n**Advice:**\n- Stay hydrated and rest.\n- Monitor your temperature.\n- Gargle with warm salt water for throat pain.\n\nIf fever exceeds 101°F, please consult our General Practitioner immediately."
+        
+    elif any(x in msg for x in ['stomach', 'pain', 'vomit', 'nausea', 'diarrhea', 'digestion']):
+        return "Abdominal issues are often dietary. Avoid spicy or heavy foods today. Probiotics or curd rice might help soothe your stomach. If pain is severe (especially on the right side), seek immediate help."
+        
+    elif any(x in msg for x in ['chest', 'heart', 'breath', 'tightness']):
+        return "⚠️ **Important:** Chest pain or shortness of breath can be serious. \n\nIf you feel pressure, sweating, or pain radiating to your arm, please use the **SOS / Emergency** button immediately or call an ambulance. Do not ignore these symptoms."
+        
+    elif any(x in msg for x in ['skin', 'rash', 'itch', 'allergy']):
+        return "For skin irritations, try to keep the area clean and dry. Avoid scratching. If you have a known allergy, take your prescribed antihistamine. You can upload a photo of the rash in the **Medical Vault** for a doctor to review."
+
+    # General Health
+    elif any(x in msg for x in ['diet', 'food', 'eat', 'nutrition']):
+        return "A balanced diet is key! Focus on whole grains, proteins, and plenty of vegetables. Reduce sugar and processed foods. Would you like to consult a nutritionist?"
+        
+    elif 'stress' in msg or 'anxious' in msg or 'anxiety' in msg:
+        return "I hear you. Stress affects physical health too. Try deep breathing exercises (4-7-8 technique). MedTrack also offers tele-consults with mental health experts if you'd like to talk to someone."
+        
+    elif 'prescription' in msg or 'medicine' in msg or 'pill' in msg:
+        return "Always follow your doctor's prescription. You can view your active prescriptions in the **Medical Vault**. Never self-medicate antibiotics."
+
+    # Emergency
+    elif 'emergency' in msg or 'sos' in msg or 'help' in msg or 'urgent' in msg:
+        return "🚨 **EMERGENCY PROTOCOL:** Please click the red **SOS Button** on the left sidebar immediately. This will alert nearby hospitals and your emergency contacts."
         
     else:
-        return "I understand. I'm here to support your health journey. Could you please provide more details so I can assist you better?"
+        return f"I understand, {patient_name}. While I'm an AI, I want to help. Could you describe your symptoms in more detail? (e.g., 'I have a headache' or 'My stomach hurts')"
 
 
 # ============================================
