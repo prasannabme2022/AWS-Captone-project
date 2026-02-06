@@ -32,7 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:050690756868:Medtrack_cloud_enabled_healthcare_management')
+SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:908027408356:Medtrack_cloud_enabled_healthcare_management')
 
 
 logging.basicConfig(level=logging.INFO)
