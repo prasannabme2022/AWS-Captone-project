@@ -221,7 +221,7 @@
         <div
             style="background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden;">
             <div style="padding: 1.5rem 1.5rem 1rem;">
-                <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937; font-weight: 600;">Patient Queue</h3>
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937; font-weight: 600;">Active Queue Management</h3>
             </div>
 
             <table style="width: 100%; border-collapse: collapse;">
@@ -229,10 +229,10 @@
                     <tr>
                         <th
                             style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
-                            Time</th>
+                            Patient</th>
                         <th
                             style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
-                            Patient</th>
+                            Date</th>
                         <th
                             style="padding: 1rem 1.5rem; text-align: left; color: #374151; font-weight: 600; font-size: 0.9rem;">
                             Status</th>
@@ -252,23 +252,47 @@
                     {% else %}
                     {% for appt in active_queue %}
                     <tr style="border-bottom: 1px solid #f9fafb;">
-                        <td
-                            style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 500; font-size: 0.9rem; vertical-align: middle;">
-                            {% if 'N/A' in appt.time %}
-                            <span style="color: #d1d5db; font-size: 0.8rem;">--:--</span>
-                            {% else %}
-                            {{ appt.time.split(' ')[1] if ' ' in appt.time else appt.time }}
-                            {% endif %}
-                        </td>
                         <td style="padding: 1rem 1.5rem; vertical-align: middle;">
                             <div style="font-weight: 500; color: #1f2937;">{{ appt.patient_name }}</div>
-                            <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.patient_id }}</div>
+                            <div style="font-size: 0.8rem; color: #9ca3af;">{{ appt.symptoms[:30] if appt.symptoms else
+                                appt.patient_id }}...</div>
+                        </td>
+                        <td
+                            style="padding: 1rem 1.5rem; color: #4b5563; font-weight: 500; font-size: 0.9rem; vertical-align: middle;">
+                            {{ appt.appointment_date[:10] if appt.appointment_date else 'N/A' }}
                         </td>
                         <td style="padding: 1rem 1.5rem; vertical-align: middle;">
+                            {% if appt.status == 'BOOKED' %}
                             <span
-                                class="status-badge status-{{ 'normal' if appt.status == 'COMPLETED' else 'review' if appt.status == 'CONSULTING' else 'attention' }}">
-                                {{ appt.status }}
+                                style="background: #fef3c7; color: #d97706; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                PENDING
                             </span>
+                            {% elif appt.status == 'CONFIRMED' %}
+                            <span
+                                style="background: #d1fae5; color: #059669; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                CONFIRMED
+                            </span>
+                            {% elif appt.status == 'CHECKED-IN' %}
+                            <span
+                                style="background: #dbeafe; color: #2563eb; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                WAITING
+                            </span>
+                            {% elif appt.status == 'CONSULTING' %}
+                            <span
+                                style="background: #fce7f3; color: #db2777; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                CONSULTING
+                            </span>
+                            {% elif appt.status == 'COMPLETED' %}
+                            <span
+                                style="background: #d1fae5; color: #059669; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                COMPLETED
+                            </span>
+                            {% else %}
+                            <span
+                                style="background: #f3f4f6; color: #6b7280; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                {{ appt.status or 'PENDING' }}
+                            </span>
+                            {% endif %}
                         </td>
                         <td style="padding: 1rem 1.5rem; text-align: right; vertical-align: middle;">
                             <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
