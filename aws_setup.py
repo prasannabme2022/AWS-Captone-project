@@ -766,30 +766,36 @@ def accept_appointment_request(request_id):
             logger.error(f"Request {request_id} not found")
             return False
         
-        if request['status'] != 'PENDING':
-            logger.warning(f"Request {request_id} is not pending")
+        # Rigorous Status Check
+        if request.get('status') != 'PENDING':
+            logger.warning(f"Request {request_id} is not pending (Status: {request.get('status')})")
             return False
         
-        # Update request status
-        appointment_requests_table.update_item(
-            Key={'request_id': request_id},
-            UpdateExpression="SET #status = :status, updated_at = :updated",
-            ExpressionAttributeNames={'#status': 'status'},
-            ExpressionAttributeValues={
-                ':status': 'ACCEPTED',
-                ':updated': get_current_datetime()
-            }
-        )
-        
         # Create the actual appointment
+        # We append a note to symptoms to indicate this was a doctor-initiated request
+        original_reason = request.get('reason', '')
+        symptoms = f"{original_reason} (Doctor Request Accepted)"
+        
         appointment_id = create_appointment(
             patient_email=request['patient_email'],
             doctor_email=request['doctor_email'],
             appointment_date=request['proposed_date'],
-            symptoms=request.get('reason', 'Doctor requested consultation')
+            symptoms=symptoms
         )
         
         if appointment_id:
+            # Update request status ONLY if appointment creation succeeded
+            appointment_requests_table.update_item(
+                Key={'request_id': request_id},
+                UpdateExpression="SET #status = :status, updated_at = :updated, appointment_id = :aid",
+                ExpressionAttributeNames={'#status': 'status'},
+                ExpressionAttributeValues={
+                    ':status': 'ACCEPTED',
+                    ':updated': get_current_datetime(),
+                    ':aid': appointment_id
+                }
+            )
+            
             # Get names for notification
             doctor = get_doctor(request['doctor_email'])
             patient = get_patient(request['patient_email'])
@@ -808,6 +814,7 @@ Dear Dr. {doctor_name},
 
 Appointment ID: {appointment_id}
 Date: {request['proposed_date']}
+Reason: {original_reason}
 
 The appointment is now confirmed and visible in your dashboard.
 
