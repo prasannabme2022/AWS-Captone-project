@@ -2295,6 +2295,62 @@ def list_appointment_requests():
 
 
 
+
+@app.route('/debug_data')
+def debug_data():
+    """Temporary route to debug data visibility issues"""
+    from datetime import timedelta
+    
+    # 1. Get Server Time Details
+    utc_now = datetime.utcnow()
+    ist_now = utc_now + timedelta(hours=5, minutes=30)
+    today_str_ist = ist_now.strftime('%Y-%m-%d')
+    
+    # 2. Fetch Appointments
+    raw_appts = []
+    try:
+        # Check if using DynamoDB boto3 Table resource
+        if hasattr(appointments_table, 'scan'):
+            response = appointments_table.scan()
+            raw_appts = response.get('Items', [])
+            # Deserialize decimals if needed
+            raw_appts = [deserialize_item(a) for a in raw_appts]
+        # Check if using simple list (fallback)
+        elif isinstance(appointments_table, list):
+            raw_appts = appointments_table
+        # Check if using custom MockTable
+        elif hasattr(appointments_table, 'items'):
+            raw_appts = appointments_table.items
+    except Exception as e:
+        raw_appts = [{"error": str(e)}]
+
+    # 3. Analyze why they might be hidden from dashboard
+    analysis = []
+    for appt in raw_appts:
+        appt_date = appt.get('appointment_date', '')
+        status = appt.get('status', '')
+        
+        is_today = str(appt_date).startswith(today_str_ist)
+        is_active = status in ['BOOKED', 'CONFIRMED', 'CHECKED-IN', 'CONSULTING']
+        
+        analysis.append({
+            'id': appt.get('appointment_id'),
+            'date_stored': str(appt_date),
+            'status': status,
+            'server_today_ist': today_str_ist,
+            'is_considered_today': is_today,
+            'is_considered_active': is_active,
+            'visible_on_dashboard': is_today and is_active
+        })
+
+    return jsonify({
+        'server_time_utc': str(utc_now),
+        'server_time_ist': str(ist_now),
+        'dashboard_filter_date': today_str_ist,
+        'all_appointments': raw_appts,
+        'visibility_analysis': analysis
+    })
+
 if __name__ == '__main__':
     print("--- MedTrack AWS Setup Complete ---")
     print("Initializing DynamoDB Tables...")
