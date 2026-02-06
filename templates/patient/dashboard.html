@@ -227,6 +227,105 @@
             </div>
         </div>
 
+        <!-- Active Queue Management (Full Width) -->
+        <div
+            style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+            <h2 style="font-size: 1.3rem; color: #1f2937; margin: 0 0 1.5rem 0; font-weight: 600;">Active Queue
+                Management</h2>
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                    <tr>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #6b7280; font-weight: 600; font-size: 0.9rem;">
+                            Patient</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #6b7280; font-weight: 600; font-size: 0.9rem;">
+                            Date</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: #6b7280; font-weight: 600; font-size: 0.9rem;">
+                            Status</th>
+                        <th
+                            style="padding: 1rem; text-align: right; color: #6b7280; font-weight: 600; font-size: 0.9rem;">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if appointments %}
+                    {% for appt in appointments %}
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 500; color: #1f2937;">{{ session.user_name or 'Patient' }}</div>
+                            <div style="font-size: 0.85rem; color: #9ca3af;">{{ appt.symptoms[:30] if appt.symptoms else
+                                'General checkup' }}...</div>
+                        </td>
+                        <td style="padding: 1rem; color: #6b7280;">
+                            {{ appt.appointment_date[:10] if appt.appointment_date else 'N/A' }}
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if appt.status == 'BOOKED' %}
+                            <span
+                                style="background: #fef3c7; color: #d97706; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                PENDING
+                            </span>
+                            {% elif appt.status == 'CONFIRMED' %}
+                            <span
+                                style="background: #d1fae5; color: #059669; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                CONFIRMED
+                            </span>
+                            {% elif appt.status == 'CHECKED-IN' %}
+                            <span
+                                style="background: #dbeafe; color: #2563eb; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                WAITING
+                            </span>
+                            {% elif appt.status == 'CONSULTING' %}
+                            <span
+                                style="background: #fce7f3; color: #db2777; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                CONSULTING
+                            </span>
+                            {% elif appt.status == 'COMPLETED' %}
+                            <span
+                                style="background: #d1fae5; color: #059669; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                COMPLETED
+                            </span>
+                            {% else %}
+                            <span
+                                style="background: #f3f4f6; color: #6b7280; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
+                                {{ appt.status or 'PENDING' }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; text-align: right;">
+                            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                <button
+                                    style="background: white; border: 1px solid #d1d5db; color: #374151; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#f9fafb'"
+                                    onmouseout="this.style.background='white'">
+                                    History
+                                </button>
+                                {% if appt.status in ['BOOKED', 'CONFIRMED', 'CHECKED-IN'] %}
+                                <button
+                                    style="background: #3b82f6; border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#2563eb'"
+                                    onmouseout="this.style.background='#3b82f6'">
+                                    Advance
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" style="padding: 3rem; text-align: center; color: #9ca3af;">
+                            No appointments scheduled
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
         <!-- Patient Tracking Timeline (Full Width) -->
         <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
