@@ -31,3 +31,6 @@ venv/
 # Project Specific
 medtrack/uploads/*
 !medtrack/uploads/.gitkeep
+
+# Local Development Data
+local_data/

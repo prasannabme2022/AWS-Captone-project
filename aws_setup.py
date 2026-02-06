@@ -101,10 +101,28 @@ try:
     appointment_requests_table = dynamodb.Table(APPOINTMENT_REQUESTS_TABLE)
     
     logger.info("AWS services initialized successfully")
+    AWS_AVAILABLE = True
+    
 except Exception as e:
-    logger.error(f"Failed to initialize AWS services: {e}")
-    # Continue execution for local testing handling or graceful failure
-    pass
+    logger.warning(f"AWS services not available: {e}")
+    logger.info("Falling back to local file-based storage for development")
+    
+    # Import local storage fallback
+    from local_storage import LocalStorage
+    
+    # Initialize local storage tables
+    patients_table = LocalStorage(PATIENTS_TABLE)
+    doctors_table = LocalStorage(DOCTORS_TABLE)
+    appointments_table = LocalStorage(APPOINTMENTS_TABLE)
+    medical_vault_table = LocalStorage(MEDICAL_VAULT_TABLE)
+    blood_bank_table = LocalStorage(BLOOD_BANK_TABLE)
+    invoices_table = LocalStorage(INVOICES_TABLE)
+    chat_messages_table = LocalStorage(CHAT_MESSAGES_TABLE)
+    mood_logs_table = LocalStorage(MOOD_LOGS_TABLE)
+    appointment_requests_table = LocalStorage(APPOINTMENT_REQUESTS_TABLE)
+    
+    AWS_AVAILABLE = False
+    logger.info("Local storage initialized - data will persist in local_data/ folder")
 
 # ============================================
 # HELPER FUNCTIONS
