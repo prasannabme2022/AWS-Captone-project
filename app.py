@@ -9,7 +9,7 @@ from sns_service import sns_client # Import AWS SNS Service
 import boto3
 
 # AWS Configuration (UPDATED for consistency)
-REGION = 'ap-south-1' # Mumbai, India
+REGION = 'us-east-1' # N. Virginia
 
 dynamodb = boto3.resource('dynamodb', region_name=REGION)
 sns = boto3.client('sns', region_name=REGION)
@@ -21,7 +21,7 @@ doctor_table = dynamodb.Table('DoctorUser')
 medtrack_data_table = dynamodb.Table('Medtrack_data')
 
 # SNS Topic ARN (UPDATED to match region)
-SNS_TOPIC_ARN = 'arn:aws:sns:ap-south-1:050690756868:Medtrack_cloud_enabled_healthcare_management'
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:050690756868:Medtrack_cloud_enabled_healthcare_management'
 
 app = Flask(__name__)
 app.secret_key = 'supersecuritykey_medtrack_dev' # Use env var in production

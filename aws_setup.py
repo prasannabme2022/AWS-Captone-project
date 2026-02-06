@@ -23,7 +23,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # AWS Configuration
-AWS_REGION = os.getenv('AWS_REGION', 'ap-south-1')
+AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
 PATIENTS_TABLE = 'medtrack_patients'
 DOCTORS_TABLE = 'medtrack_doctors'
 APPOINTMENTS_TABLE = 'medtrack_appointments'
@@ -32,7 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:ap-southeast-2:050690756868:Medtrack_cloud_enabled_healthcare_management')
+SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:050690756868:Medtrack_cloud_enabled_healthcare_management')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -1909,4 +1909,5 @@ if __name__ == '__main__':
 
     print("Starting MedTrack Server with AWS Integration...")
     print(f"Server started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)+
+    
