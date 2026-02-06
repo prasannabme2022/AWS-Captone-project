@@ -1449,7 +1449,7 @@ def patient_dashboard():
     print(f"DEBUG: Appointments for {user_id}: {appointments}") 
     
     # Calculate upcoming appointment (First active appointment)
-    active_statuses = ['BOOKED', 'CHECKED-IN', 'CONSULTING']
+    active_statuses = ['BOOKED', 'CONFIRMED', 'CHECKED-IN', 'CONSULTING']
     upcoming_appointment = next((a for a in appointments if a.get('status') in active_statuses), None)
     
     # 2. Billing: Calculate unpaid balance
@@ -1562,7 +1562,8 @@ def advance_status(appt_id):
         
         # Define status progression
         status_flow = {
-            'BOOKED': 'CHECKED-IN',
+            'BOOKED': 'CONFIRMED',
+            'CONFIRMED': 'CHECKED-IN',
             'CHECKED-IN': 'CONSULTING',
             'CONSULTING': 'COMPLETED'
         }
@@ -1636,7 +1637,7 @@ def doctor_dashboard():
     
     # Active Queue: Include ALL active appointments regardless of date to ensure no one is missed
     # robust case-insensitive check
-    active_statuses = ['BOOKED', 'CHECKED-IN', 'CONSULTING']
+    active_statuses = ['BOOKED', 'CONFIRMED', 'CHECKED-IN', 'CONSULTING']
     active_queue = [
         a for a in appointments 
         if (a.get('status') or '').upper() in active_statuses

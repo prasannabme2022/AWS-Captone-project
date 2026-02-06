@@ -279,6 +279,11 @@
 
                                 {% if appt.status == 'BOOKED' %}
                                 <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
+                                    style="background: #4f46e5; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-calendar-check"></i> Confirm
+                                </a>
+                                {% elif appt.status == 'CONFIRMED' %}
+                                <a href="{{ url_for('advance_status', appt_id=appt.appointment_id) }}"
                                     style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                                     <i class="fas fa-check-circle"></i> Check In
                                 </a>
