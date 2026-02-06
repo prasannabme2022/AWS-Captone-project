@@ -1909,10 +1909,4 @@ if __name__ == '__main__':
 
     print("Starting MedTrack Server with AWS Integration...")
     print(f"Server started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-<<<<<<< HEAD
     app.run(host='0.0.0.0', port=5000, debug=True)
-    
-=======
-    app.run(host='0.0.0.0', port=5000, debug=True)+
-    
->>>>>>> 91a9fc69b1be7599bc496ed8bb0d70356e0798dd
