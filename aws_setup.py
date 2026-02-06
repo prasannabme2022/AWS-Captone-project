@@ -32,6 +32,7 @@ BLOOD_BANK_TABLE = 'medtrack_blood_bank'
 INVOICES_TABLE = 'medtrack_invoices'
 CHAT_MESSAGES_TABLE = 'medtrack_chat_messages'
 MOOD_LOGS_TABLE = 'medtrack_mood_logs'
+APPOINTMENT_REQUESTS_TABLE = 'medtrack_appointment_requests'
 SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:908027408356:Medtrack_cloud_enabled_healthcare_management')
 
 
@@ -61,7 +62,8 @@ try:
         {'name': BLOOD_BANK_TABLE, 'key': 'blood_group'},
         {'name': INVOICES_TABLE, 'key': 'invoice_id'},
         {'name': CHAT_MESSAGES_TABLE, 'key': 'message_id'},
-        {'name': MOOD_LOGS_TABLE, 'key': 'mood_id'}
+        {'name': MOOD_LOGS_TABLE, 'key': 'mood_id'},
+        {'name': APPOINTMENT_REQUESTS_TABLE, 'key': 'request_id'}
     ]
 
     def create_tables():
@@ -96,6 +98,7 @@ try:
     invoices_table = dynamodb.Table(INVOICES_TABLE)
     chat_messages_table = dynamodb.Table(CHAT_MESSAGES_TABLE)
     mood_logs_table = dynamodb.Table(MOOD_LOGS_TABLE)
+    appointment_requests_table = dynamodb.Table(APPOINTMENT_REQUESTS_TABLE)
     
     logger.info("AWS services initialized successfully")
 except Exception as e:
@@ -627,6 +630,265 @@ def get_doctor_appointments(doctor_email):
 # Let me modify the doctor_dashboard route separately or if it's close enough.
 # It seems get_doctor_appointments is around line 560. doctor_dashboard is around 1280.
 # I will apply this change to get_doctor_appointments first.
+
+# ============================================
+# APPOINTMENT REQUEST MANAGEMENT (Doctor → Patient)
+# ============================================
+
+def create_appointment_request(doctor_email, patient_email, proposed_date, reason=''):
+    """Doctor creates an appointment request for a patient"""
+    try:
+        request_id = generate_id("REQ")
+        
+        request_data = {
+            'request_id': request_id,
+            'doctor_email': doctor_email,
+            'patient_email': patient_email,
+            'proposed_date': proposed_date,
+            'reason': reason or '',
+            'status': 'PENDING',  # PENDING, ACCEPTED, DECLINED
+            'created_at': get_current_datetime(),
+            'updated_at': get_current_datetime()
+        }
+        
+        appointment_requests_table.put_item(Item=request_data)
+        
+        # Get doctor and patient names
+        doctor = get_doctor(doctor_email)
+        patient = get_patient(patient_email)
+        
+        doctor_name = doctor.get('name', doctor_email) if doctor else doctor_email
+        patient_name = patient.get('name', patient_email) if patient else patient_email
+        
+        # Send notification to patient
+        send_email_notification(
+            email=patient_email,
+            subject="New Appointment Request - MedTrack",
+            message=f"""
+Dear {patient_name},
+
+Dr. {doctor_name} has sent you an appointment request.
+
+Proposed Date: {proposed_date}
+Reason: {reason or 'Consultation'}
+
+Please log in to your MedTrack dashboard to accept or decline this request.
+
+Thank you,
+MedTrack Team
+            """.strip()
+        )
+        
+        logger.info(f"Appointment request created: {request_id}")
+        return request_id
+    except ClientError as e:
+        logger.error(f"Error creating appointment request: {e}")
+        return None
+
+def get_appointment_request(request_id):
+    """Get appointment request by ID"""
+    try:
+        response = appointment_requests_table.get_item(Key={'request_id': request_id})
+        return deserialize_item(response.get('Item'))
+    except ClientError as e:
+        logger.error(f"Error getting appointment request {request_id}: {e}")
+        return None
+
+def get_patient_appointment_requests(patient_email, status=None):
+    """Get all appointment requests for a patient, optionally filtered by status"""
+    try:
+        if status:
+            response = appointment_requests_table.scan(
+                FilterExpression='patient_email = :email AND #status = :status',
+                ExpressionAttributeNames={'#status': 'status'},
+                ExpressionAttributeValues={
+                    ':email': patient_email,
+                    ':status': status
+                }
+            )
+        else:
+            response = appointment_requests_table.scan(
+                FilterExpression='patient_email = :email',
+                ExpressionAttributeValues={':email': patient_email}
+            )
+        
+        requests = [deserialize_item(item) for item in response.get('Items', [])]
+        
+        # Enrich with doctor details
+        for req in requests:
+            if 'doctor_email' in req:
+                doc = get_doctor(req['doctor_email'])
+                req['doctor_name'] = doc.get('name', req['doctor_email']) if doc else req['doctor_email']
+                req['doctor_specialization'] = doc.get('specialization', 'General') if doc else 'General'
+        
+        return sorted(requests, key=lambda x: x.get('created_at', ''), reverse=True)
+    except ClientError as e:
+        logger.error(f"Error getting patient appointment requests: {e}")
+        return []
+
+def get_doctor_appointment_requests(doctor_email, status=None):
+    """Get all appointment requests sent by a doctor, optionally filtered by status"""
+    try:
+        if status:
+            response = appointment_requests_table.scan(
+                FilterExpression='doctor_email = :email AND #status = :status',
+                ExpressionAttributeNames={'#status': 'status'},
+                ExpressionAttributeValues={
+                    ':email': doctor_email,
+                    ':status': status
+                }
+            )
+        else:
+            response = appointment_requests_table.scan(
+                FilterExpression='doctor_email = :email',
+                ExpressionAttributeValues={':email': doctor_email}
+            )
+        
+        requests = [deserialize_item(item) for item in response.get('Items', [])]
+        
+        # Enrich with patient details
+        for req in requests:
+            if 'patient_email' in req:
+                patient = get_patient(req['patient_email'])
+                req['patient_name'] = patient.get('name', req['patient_email']) if patient else req['patient_email']
+        
+        return sorted(requests, key=lambda x: x.get('created_at', ''), reverse=True)
+    except ClientError as e:
+        logger.error(f"Error getting doctor appointment requests: {e}")
+        return []
+
+def accept_appointment_request(request_id):
+    """Patient accepts an appointment request and creates an appointment"""
+    try:
+        # Get the request
+        request = get_appointment_request(request_id)
+        if not request:
+            logger.error(f"Request {request_id} not found")
+            return False
+        
+        if request['status'] != 'PENDING':
+            logger.warning(f"Request {request_id} is not pending")
+            return False
+        
+        # Update request status
+        appointment_requests_table.update_item(
+            Key={'request_id': request_id},
+            UpdateExpression="SET #status = :status, updated_at = :updated",
+            ExpressionAttributeNames={'#status': 'status'},
+            ExpressionAttributeValues={
+                ':status': 'ACCEPTED',
+                ':updated': get_current_datetime()
+            }
+        )
+        
+        # Create the actual appointment
+        appointment_id = create_appointment(
+            patient_email=request['patient_email'],
+            doctor_email=request['doctor_email'],
+            appointment_date=request['proposed_date'],
+            symptoms=request.get('reason', 'Doctor requested consultation')
+        )
+        
+        if appointment_id:
+            # Get names for notification
+            doctor = get_doctor(request['doctor_email'])
+            patient = get_patient(request['patient_email'])
+            
+            doctor_name = doctor.get('name', request['doctor_email']) if doctor else request['doctor_email']
+            patient_name = patient.get('name', request['patient_email']) if patient else request['patient_email']
+            
+            # Notify doctor
+            send_email_notification(
+                email=request['doctor_email'],
+                subject="Appointment Request Accepted - MedTrack",
+                message=f"""
+Dear Dr. {doctor_name},
+
+{patient_name} has accepted your appointment request.
+
+Appointment ID: {appointment_id}
+Date: {request['proposed_date']}
+
+The appointment is now confirmed and visible in your dashboard.
+
+Thank you,
+MedTrack Team
+                """.strip()
+            )
+            
+            logger.info(f"Appointment request {request_id} accepted, appointment {appointment_id} created")
+            return True
+        else:
+            logger.error(f"Failed to create appointment for request {request_id}")
+            return False
+            
+    except ClientError as e:
+        logger.error(f"Error accepting appointment request {request_id}: {e}")
+        return False
+
+def decline_appointment_request(request_id, reason=''):
+    """Patient declines an appointment request"""
+    try:
+        # Get the request
+        request = get_appointment_request(request_id)
+        if not request:
+            logger.error(f"Request {request_id} not found")
+            return False
+        
+        if request['status'] != 'PENDING':
+            logger.warning(f"Request {request_id} is not pending")
+            return False
+        
+        # Update request status
+        update_expr = "SET #status = :status, updated_at = :updated"
+        expr_values = {
+            ':status': 'DECLINED',
+            ':updated': get_current_datetime()
+        }
+        
+        if reason:
+            update_expr += ", decline_reason = :reason"
+            expr_values[':reason'] = reason
+        
+        appointment_requests_table.update_item(
+            Key={'request_id': request_id},
+            UpdateExpression=update_expr,
+            ExpressionAttributeNames={'#status': 'status'},
+            ExpressionAttributeValues=expr_values
+        )
+        
+        # Get names for notification
+        doctor = get_doctor(request['doctor_email'])
+        patient = get_patient(request['patient_email'])
+        
+        doctor_name = doctor.get('name', request['doctor_email']) if doctor else request['doctor_email']
+        patient_name = patient.get('name', request['patient_email']) if patient else request['patient_email']
+        
+        # Notify doctor
+        send_email_notification(
+            email=request['doctor_email'],
+            subject="Appointment Request Declined - MedTrack",
+            message=f"""
+Dear Dr. {doctor_name},
+
+{patient_name} has declined your appointment request for {request['proposed_date']}.
+
+{f'Reason: {reason}' if reason else ''}
+
+You may send a new request or contact the patient directly.
+
+Thank you,
+MedTrack Team
+            """.strip()
+        )
+        
+        logger.info(f"Appointment request {request_id} declined")
+        return True
+        
+    except ClientError as e:
+        logger.error(f"Error declining appointment request {request_id}: {e}")
+        return False
+
 
 # ============================================
 # MEDICAL VAULT (FILE STORAGE)
@@ -1897,6 +2159,132 @@ def debug_sns():
         return f"SNS Test Sent to {email}. Check your inbox (and spam) for a 'Subscription Confirmation' link or the test message."
     except Exception as e:
         return f"SNS Failure: {e}"
+
+
+# ============================================
+# APPOINTMENT REQUEST API ROUTES
+# ============================================
+
+@app.route('/api/appointment_request/send', methods=['POST'])
+def send_appointment_request():
+    """Doctor sends an appointment request to a patient"""
+    if 'user_id' not in session or session.get('role') != 'doctor':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+    
+    try:
+        data = request.get_json()
+        patient_email = data.get('patient_email')
+        proposed_date = data.get('proposed_date')
+        reason = data.get('reason', '')
+        
+        if not patient_email or not proposed_date:
+            return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+        
+        request_id = create_appointment_request(
+            doctor_email=session['user_id'],
+            patient_email=patient_email,
+            proposed_date=proposed_date,
+            reason=reason
+        )
+        
+        if request_id:
+            return jsonify({
+                'status': 'success',
+                'message': 'Appointment request sent successfully',
+                'request_id': request_id
+            })
+        else:
+            return jsonify({'status': 'error', 'message': 'Failed to send request'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in send_appointment_request: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/appointment_request/accept/<request_id>', methods=['POST'])
+def accept_request(request_id):
+    """Patient accepts an appointment request"""
+    if 'user_id' not in session or session.get('role') != 'patient':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+    
+    try:
+        # Verify the request belongs to this patient
+        req = get_appointment_request(request_id)
+        if not req:
+            return jsonify({'status': 'error', 'message': 'Request not found'}), 404
+        
+        if req['patient_email'] != session['user_id']:
+            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+        
+        if accept_appointment_request(request_id):
+            flash('Appointment request accepted successfully!', 'success')
+            return jsonify({
+                'status': 'success',
+                'message': 'Appointment request accepted and appointment created'
+            })
+        else:
+            return jsonify({'status': 'error', 'message': 'Failed to accept request'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in accept_request: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/appointment_request/decline/<request_id>', methods=['POST'])
+def decline_request(request_id):
+    """Patient declines an appointment request"""
+    if 'user_id' not in session or session.get('role') != 'patient':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+    
+    try:
+        data = request.get_json() or {}
+        reason = data.get('reason', '')
+        
+        # Verify the request belongs to this patient
+        req = get_appointment_request(request_id)
+        if not req:
+            return jsonify({'status': 'error', 'message': 'Request not found'}), 404
+        
+        if req['patient_email'] != session['user_id']:
+            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+        
+        if decline_appointment_request(request_id, reason):
+            flash('Appointment request declined.', 'info')
+            return jsonify({
+                'status': 'success',
+                'message': 'Appointment request declined'
+            })
+        else:
+            return jsonify({'status': 'error', 'message': 'Failed to decline request'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in decline_request: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/appointment_request/list')
+def list_appointment_requests():
+    """Get appointment requests for the logged-in user"""
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+    
+    try:
+        role = session.get('role')
+        status_filter = request.args.get('status')  # Optional: PENDING, ACCEPTED, DECLINED
+        
+        if role == 'patient':
+            requests = get_patient_appointment_requests(session['user_id'], status_filter)
+        elif role == 'doctor':
+            requests = get_doctor_appointment_requests(session['user_id'], status_filter)
+        else:
+            return jsonify({'status': 'error', 'message': 'Invalid role'}), 403
+        
+        return jsonify({
+            'status': 'success',
+            'requests': requests
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in list_appointment_requests: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 
 if __name__ == '__main__':
