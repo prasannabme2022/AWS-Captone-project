@@ -34,3 +34,7 @@ medtrack/uploads/*
 
 # Local Development Data
 local_data/
+
+# Cleanup Scripts
+FILE_CLEANUP_ANALYSIS.md
+cleanup_files.ps1
